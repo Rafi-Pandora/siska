@@ -243,3 +243,56 @@ void RailwayMLL::showChildFromParent(int petak_id) {
         }
         r = r->next;
     }
+}
+
+void RailwayMLL::showRelasiFromKereta(int ka_id) {
+    KeretaApiNode* ka = findKereta(ka_id);
+    if (!ka) {
+        cout << "Kereta tidak ditemukan.\n";
+        return;
+    }
+
+    cout << "\n=== Relasi untuk Kereta " << ka->nama_kereta << " (KA " << ka->no_ka << ") ===\n";
+
+    RelationNode* r = head_relasi;
+    bool found = false;
+
+    while (r) {
+        if (r->no_ka == ka_id) {
+            StationNode* s = findStasiun(r->petak_stasiun);
+            if (s) {
+                cout << "Stasiun " << s->nama_stasiun
+                     << " | Tiba: " << r->waktu_kedatangan
+                     << " | Brkt: " << r->waktu_keberangkatan
+                     << " | Info: " << r->info_relasi
+                     << endl;
+                found = true;
+            }
+        }
+        r = r->next;
+    }
+
+    if (!found) {
+        cout << "Tidak ada relasi untuk kereta ini.\n";
+    }
+}
+
+void RailwayMLL::countChildOfParent(int petak_id) {
+    StationNode* s = findStasiun(petak_id);
+    if (!s) {
+        cout << "Stasiun tidak ditemukan.\n";
+        return;
+    }
+
+    int count = 0;
+    RelationNode* r = head_relasi;
+
+    while (r) {
+        if (r->petak_stasiun == petak_id) {
+            count++;
+        }
+        r = r->next;
+    }
+
+    cout << "Total kereta yang singgah di " << s->nama_stasiun << ": " << count << endl;
+}
