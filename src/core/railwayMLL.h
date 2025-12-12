@@ -7,6 +7,8 @@ using namespace std;
 // ===========================
 //   NODE DEFINITIONS
 // ===========================
+
+// ---------- PARENT (LEVEL 1) : STATION (SLL) ----------
 struct StationNode {
     int petak_stasiun;
     string kode_stasiun;
@@ -14,41 +16,47 @@ struct StationNode {
     string kota;
     int tipe_kelas_stasiun;
     unsigned int tinggi_stasiun_mdpl;
-    StationNode* next;
+
+    StationNode* next;            // SLL
+    struct RelationNode* relasi;  // pointer ke list relasi (LEVEL 2)
 };
 
+
+// ---------- CHILD (LEVEL 3) : KERETA API (DLL) ----------
 struct KeretaApiNode {
     int no_ka;
     string nama_kereta;
     string jenis_layanan;
-    KeretaApiNode* next;
-    KeretaApiNode* prev;
+
+    KeretaApiNode* next;          // DLL
+    KeretaApiNode* prev;          // DLL
+    struct RelationNode* relasi;  // pointer ke list relasi KA ini (LEVEL 2)
 };
 
+
+// ---------- RELATION (LEVEL 2) : LINK STATION ↔ KERETA ----------
 struct RelationNode {
-    int petak_stasiun;
-    int no_ka;
     string waktu_kedatangan;
     string waktu_keberangkatan;
     string info_relasi;
-    RelationNode* next;
-    RelationNode* prev;
+
+    RelationNode* next;           // DLL
+    RelationNode* prev;           // DLL
+
+    StationNode* parentStation;   // pointer ke Parent
+    KeretaApiNode* childKereta;   // pointer ke Child
 };
+
 
 // ===========================
 //       CLASS MLL
 // ===========================
 class RailwayMLL {
 public:
-    // Pointers
-    StationNode* head_stasiun;
-    StationNode* tail_stasiun;
 
+    // Head pointers for 3 lists
+    StationNode* head_stasiun;  
     KeretaApiNode* head_kereta;
-    KeretaApiNode* tail_kereta;
-
-    RelationNode* head_relasi;
-    RelationNode* tail_relasi;
 
     RailwayMLL();
     ~RailwayMLL();
@@ -56,15 +64,19 @@ public:
     RailwayMLL(const RailwayMLL&) = delete;
     RailwayMLL& operator=(const RailwayMLL&) = delete;
 
-    // Helper
+    // Find
     StationNode* findStasiun(int petak_id);
     KeretaApiNode* findKereta(int ka_id);
-    RelationNode* findRelasi(int petak_id, int ka_id);
 
     // Insert
-    void insertParent(int id, const string& kode, const string& nama, const string& kota, int tipe, unsigned int tinggi);
-    void insertChild(int id, const string& nama, const string& jenis);
-    void insertRelation(int petak_id, int ka_id, const string& tiba, const string& berangkat, const string& info);
+    void insertParent(int petak, const string& kode, const string& nama,
+                      const string& kota, int tipe, unsigned int tinggi);
+
+    void insertChild(int ka_id, const string& nama, const string& jenis);
+
+    void insertRelation(int petak_id, int ka_id,
+                        const string& tiba, const string& berangkat,
+                        const string& info);
 
     // Delete
     void deleteParent(int petak_id);
