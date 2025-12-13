@@ -10,7 +10,7 @@ void pause() {
 }
 
 void menuParent(RailwayMLL &rail) {
-    int pilih, id, tipe;
+    int pilih, petak, tipe;
     unsigned int tinggi;
     string kode, nama, kota;
 
@@ -25,19 +25,19 @@ void menuParent(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1:
-                cout << "Petak ID: "; cin >> id;
+                cout << "Petak: "; cin >>petak;
                 cout << "Kode Stasiun: "; cin >> kode;
                 cout << "Nama Stasiun: "; cin >> nama;
                 cout << "Kota: "; cin >> kota;
                 cout << "Tipe Kelas: "; cin >> tipe;
                 cout << "Tinggi Mdpl: "; cin >> tinggi;
-                rail.insertParent(id, kode, nama, kota, tipe, tinggi);
+                rail.insertParent(petak, kode, nama, kota, tipe, tinggi);
                 pause();
                 break;
 
             case 2:
-                cout << "Petak ID: "; cin >> id;
-                rail.deleteParent(id);
+                cout << "Kode Stasiun: "; cin >>kode;
+                rail.deleteParent(kode);
                 pause();
                 break;
 
@@ -51,8 +51,8 @@ void menuParent(RailwayMLL &rail) {
 }
 
 void menuChild(RailwayMLL &rail) {
-    int pilih, id;
-    string nama, jenis;
+    int pilih, no_ka;
+    string nama, kelas;
 
     do {
         cout << "\n===== MENU KERETA (CHILD) =====\n";
@@ -65,16 +65,16 @@ void menuChild(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1:
-                cout << "ID Kereta: "; cin >> id;
+                cout << "No Kereta: "; cin >> no_ka;
                 cout << "Nama Kereta: "; cin >> nama;
-                cout << "Jenis Layanan: "; cin >> jenis;
-                rail.insertChild(id, nama, jenis);
+                cout << "kelas: "; cin >> kelas;
+                rail.insertChild(no_ka, nama, kelas);
                 pause();
                 break;
 
             case 2:
-                cout << "ID Kereta: "; cin >> id;
-                rail.deleteChild(id);
+                cout << "No Kereta: "; cin >> no_ka;
+                rail.deleteChild(no_ka);
                 pause();
                 break;
 
@@ -88,8 +88,8 @@ void menuChild(RailwayMLL &rail) {
 }
 
 void menuRelasi(RailwayMLL &rail) {
-    int pilih, petak, ka;
-    string tiba, berangkat, info;
+    int pilih, ka;
+    string tiba, berangkat, info, kode;
 
     do {
         cout << "\n===== MENU RELASI (PARENT <-> CHILD) =====\n";
@@ -103,31 +103,31 @@ void menuRelasi(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1:
-                cout << "Petak Stasiun: "; cin >> petak;
-                cout << "ID Kereta: "; cin >> ka;
+                cout << "Kode Stasiun: "; cin >> kode;
+                cout << "No Kereta: "; cin >> ka;
                 cout << "Waktu Tiba: "; cin >> tiba;
                 cout << "Waktu Berangkat: "; cin >> berangkat;
                 cout << "Info Relasi: "; cin >> info;
-                rail.insertRelation(petak, ka, tiba, berangkat, info);
+                rail.insertRelation(kode, ka, tiba, berangkat, info);
                 pause();
                 break;
 
             case 2:
-                cout << "Petak Stasiun: "; cin >> petak;
-                cout << "ID Kereta: "; cin >> ka;
-                rail.deleteRelation(petak, ka);
+                cout << "Kode Stasiun: "; cin >> kode;
+                cout << "No Kereta: "; cin >> ka;
+                rail.deleteRelation(kode, ka);
                 pause();
                 break;
 
             case 3:
-                cout << "ID Kereta: "; cin >> ka;
+                cout << "No Kereta: "; cin >> ka;
                 rail.showRelasiFromKereta(ka);
                 pause();
                 break;
 
             case 4:
-                cout << "Petak Stasiun: "; cin >> petak;
-                rail.showChildFromParent(petak);
+                cout << "Kode Stasiun: "; cin >> kode;
+                rail.showChildFromParent(kode);
                 pause();
                 break;
         }
@@ -141,7 +141,7 @@ int main() {
 
     do {
         cout << "\n=========================\n";
-        cout << "  GUI MENU RAILWAY MLL\n";
+        cout << "  MENU RAILWAY MLL\n";
         cout << "=========================\n";
         cout << "1. Menu Stasiun (Parent)\n";
         cout << "2. Menu Kereta (Child)\n";

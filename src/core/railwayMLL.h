@@ -26,7 +26,7 @@ struct StationNode {
 struct KeretaApiNode {
     int no_ka;
     string nama_kereta;
-    string jenis_layanan;
+    string kelas;
 
     KeretaApiNode* next;          // DLL
     KeretaApiNode* prev;          // DLL
@@ -65,31 +65,31 @@ public:
     RailwayMLL& operator=(const RailwayMLL&) = delete;
 
     // Find
-    StationNode* findStasiun(int petak_id);
-    KeretaApiNode* findKereta(int ka_id);
+    StationNode* findStasiun(const string& kode_stasiun);
+    KeretaApiNode* findKereta(int no_ka);
 
     // Insert
     void insertParent(int petak, const string& kode, const string& nama,
                       const string& kota, int tipe, unsigned int tinggi);
 
-    void insertChild(int ka_id, const string& nama, const string& jenis);
+    void insertChild(int no_ka, const string& nama, const string& kelas);
 
-    void insertRelation(int petak_id, int ka_id,
+    void insertRelation(const string& kode_stasiun, int no_ka,
                         const string& tiba, const string& berangkat,
                         const string& info);
 
     // Delete
-    void deleteParent(int petak_id);
-    void deleteChild(int ka_id);
-    void deleteRelation(int petak_id, int ka_id);
+    void deleteParent(const string& kode_stasiun);
+    void deleteChild(int no_ka);
+    void deleteRelation(const string& kode_stasiun, int no_ka);
 
     // Display
     void showAllParent();
     void showAllChild();
     void showAllRelations();
-    void showChildFromParent(int petak_id);
-    void showRelasiFromKereta(int ka_id);
-    void countChildOfParent(int petak_id);
+    void showChildFromParent(const string& kode_stasiun);
+    void showRelasiFromKereta(int no_ka);
+    void countChildOfParent(const string& kode_stasiun);
 };
 
 #endif

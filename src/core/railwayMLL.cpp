@@ -57,20 +57,20 @@ RailwayMLL::~RailwayMLL() {
 // =============================================================
 // FIND FUNCTIONS
 // =============================================================
-StationNode* RailwayMLL::findStasiun(int petak_id) {
+StationNode* RailwayMLL::findStasiun(const string& kode_stasiun) {
     StationNode* cur = head_stasiun;
     while (cur) {
-        if (cur->petak_stasiun == petak_id)
+        if (cur->kode_stasiun == kode_stasiun)
             return cur;
         cur = cur->next;
     }
     return nullptr;
 }
 
-KeretaApiNode* RailwayMLL::findKereta(int ka_id) {
+KeretaApiNode* RailwayMLL::findKereta(int no_ka) {
     KeretaApiNode* cur = head_kereta;
     while (cur) {
-        if (cur->no_ka == ka_id)
+        if (cur->no_ka == no_ka)
             return cur;
         cur = cur->next;
     }
@@ -83,7 +83,7 @@ KeretaApiNode* RailwayMLL::findKereta(int ka_id) {
 void RailwayMLL::insertParent(int petak, const string& kode,
         const string& nama, const string& kota, int tipe, unsigned int tinggi) {
 
-    if (findStasiun(petak)) {
+    if (findStasiun(kode)) {
         cout << "Stasiun sudah ada!\n";
         return;
     }
@@ -107,14 +107,14 @@ void RailwayMLL::insertParent(int petak, const string& kode,
 // =============================================================
 // INSERT CHILD
 // =============================================================
-void RailwayMLL::insertChild(int ka_id, const string& nama, const string& jenis) {
-    if (findKereta(ka_id)) {
+void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas) {
+    if (findKereta(no_ka)) {
         cout << "Kereta sudah ada!\n";
         return;
     }
 
     KeretaApiNode* node = new KeretaApiNode{
-        ka_id, nama, jenis,
+        no_ka, nama, kelas,
         nullptr, nullptr,
         nullptr // <--- child relasi list
     };
@@ -134,11 +134,11 @@ void RailwayMLL::insertChild(int ka_id, const string& nama, const string& jenis)
 // =============================================================
 // INSERT RELATION (Parent ↔ Child connection)
 // =============================================================
-void RailwayMLL::insertRelation(int petak_id, int ka_id,
+void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
         const string& tiba, const string& berangkat, const string& info) {
 
-    StationNode* st = findStasiun(petak_id);
-    KeretaApiNode* ka = findKereta(ka_id);
+    StationNode* st = findStasiun(kode_stasiun);
+    KeretaApiNode* ka = findKereta(no_ka);
 
     if (!st || !ka) {
         cout << "Error: stasiun atau KA tidak ditemukan.\n";
@@ -168,9 +168,9 @@ void RailwayMLL::insertRelation(int petak_id, int ka_id,
 // =============================================================
 // DELETE RELATION
 // =============================================================
-void RailwayMLL::deleteRelation(int petak_id, int ka_id) {
-    StationNode* st = findStasiun(petak_id);
-    KeretaApiNode* ka = findKereta(ka_id);
+void RailwayMLL::deleteRelation(const string& kode_stasiun, int no_ka) {
+    StationNode* st = findStasiun(kode_stasiun);
+    KeretaApiNode* ka = findKereta(no_ka);
 
     if (!st || !ka) {
         cout << "Stasiun/KA tidak ditemukan.\n";
@@ -248,8 +248,8 @@ void RailwayMLL::deleteChild(int ka_id) {
 // =============================================================
 // DELETE PARENT
 // =============================================================
-void RailwayMLL::deleteParent(int petak_id) {
-    StationNode* st = findStasiun(petak_id);
+void RailwayMLL::deleteParent(const string& kode_stasiun) {
+    StationNode* st = findStasiun(kode_stasiun);
     if (!st) { cout << "Stasiun tidak ditemukan.\n"; return; }
 
     // Hapus seluruh relasi station ini
@@ -293,7 +293,7 @@ void RailwayMLL::showAllChild() {
     KeretaApiNode* k = head_kereta;
     while (k) {
         cout << k->no_ka << " | " << k->nama_kereta
-             << " | " << k->jenis_layanan << endl;
+             << " | " << k->kelas << endl;
         k = k->next;
     }
 }
@@ -314,8 +314,8 @@ void RailwayMLL::showRelasiFromKereta(int ka_id) {
     }
 }
 
-void RailwayMLL::showChildFromParent(int petak_id) {
-    StationNode* st = findStasiun(petak_id);
+void RailwayMLL::showChildFromParent(const string& kode_stasiun) {
+    StationNode* st = findStasiun(kode_stasiun);
     if (!st) { cout << "Stasiun tidak ditemukan.\n"; return; }
 
     cout << "\n=== KA di stasiun " << st->nama_stasiun << " ===\n";
