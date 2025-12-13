@@ -77,6 +77,26 @@ KeretaApiNode* RailwayMLL::findKereta(int no_ka) {
     return nullptr;
 }
 
+RelationNode* RailwayMLL::findRelasi(const string& kode_stasiun, int no_ka) {
+    StationNode* st = findStasiun(kode_stasiun);
+    KeretaApiNode* ka = findKereta(no_ka);
+
+    if (!st || !ka) return nullptr;
+
+    RelationNode* r = st->relasi;
+
+    while (r) {
+        if (r->parentStation == st && r->childKereta == ka) {
+            cout << "Relasi Stasiun " << st->nama_stasiun 
+                 << " dan KA " << ka->nama_kereta << " DITEMUKAN.\n";
+            return r;
+        }
+        r = r->next;
+    }
+
+    return nullptr;
+}
+
 // =============================================================
 // INSERT PARENT
 // =============================================================
@@ -244,6 +264,29 @@ void RailwayMLL::deleteChild(int ka_id) {
     cout << "Kereta beserta seluruh relasinya telah dihapus.\n";
 }
 
+// =============================================================
+// EDIT RELATION (Poin t)
+// =============================================================
+void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka, 
+                             const string& new_tiba, const string& new_berangkat) {
+    
+    RelationNode* r = findRelasi(kode_stasiun, no_ka);
+
+    if (!r) {
+        cout << "Error: Relasi tidak ditemukan. Gagal mengedit.\n";
+        return;
+    }
+
+    // Lakukan perubahan data
+    r->waktu_kedatangan = new_tiba;
+    r->waktu_keberangkatan = new_berangkat;
+
+    cout << "Relasi berhasil diubah:\n";
+    cout << "  Stasiun: " << r->parentStation->nama_stasiun << endl;
+    cout << "  KA: " << r->childKereta->nama_kereta << endl;
+    cout << "  Waktu Tiba Baru: " << r->waktu_kedatangan << endl;
+    cout << "  Waktu Berangkat Baru: " << r->waktu_keberangkatan << endl;
+}
 
 // =============================================================
 // DELETE PARENT
@@ -328,4 +371,131 @@ void RailwayMLL::showChildFromParent(const string& kode_stasiun) {
              << endl;
         r = r->next;
     }
+}
+
+void RailwayMLL::showParentFromChild(int no_ka) {
+    KeretaApiNode* ka = findKereta(no_ka);
+    if (!ka) { cout << "KA tidak ditemukan.\n"; return; }
+
+    cout << "\n=== Stasiun yang dilayani KA " << ka->nama_kereta << " ===\n";
+
+    RelationNode* r = ka->relasi;
+    if (!r) {
+        cout << "KA ini belum melayani stasiun manapun.\n";
+        return;
+    }
+
+    while (r) {
+        cout << "Stasiun: " << r->parentStation->nama_stasiun; 
+        
+        cout << " | Tiba: " << r->waktu_kedatangan
+             << " | Brkt: " << r->waktu_keberangkatan
+             << " | Info: " << r->info_relasi
+             << endl;
+        r = r->next;
+    }
+}
+
+
+void RailwayMLL::showAllRelations() {
+    cout << "\n=== DAFTAR SEMUA RELASI JALAN (Per Stasiun) ===\n";
+    StationNode* s = head_stasiun;
+    bool found = false;
+    
+    // Traversal List Parent (Stasiun)
+    while (s) {
+        RelationNode* r = s->relasi;
+        if (r) {
+            found = true;
+            cout << "--- Stasiun: " << s->nama_stasiun << " (" << s->kode_stasiun << ") ---\n";
+            
+            // Traversal List Relasi milik stasiun saat ini
+            while (r) {
+                // Menampilkan detail KA (child) dan info relasi
+                cout << "  KA " << r->childKereta->nama_kereta 
+                     << " | Tiba: " << r->waktu_kedatangan
+                     << " | Brkt: " << r->waktu_keberangkatan
+                     << " | Info: " << r->info_relasi
+                     << endl;
+                r = r->next;
+            }
+        }
+        s = s->next;
+    }
+
+    if (!found) {
+        cout << "Tidak ada relasi yang tercatat.\n";
+    }
+}
+
+// =============================================================
+// COUNT
+// =============================================================
+void RailwayMLL::countChildOfParent(const string& kode_stasiun) {
+    StationNode* st = findStasiun(kode_stasiun);
+    if (!st) { cout << "Stasiun tidak ditemukan.\n"; return; }
+
+    int count = 0;
+    RelationNode* r = st->relasi;
+
+    while (r) {
+        count++;
+        r = r->next;
+    }
+
+    cout << "Stasiun " << st->nama_stasiun 
+         << " (" << st->kode_stasiun << ") melayani " 
+         << count << " Kereta Api.\n";
+}
+
+void RailwayMLL::countParentOfChild(int no_ka) {
+    KeretaApiNode* ka = findKereta(no_ka);
+    if (!ka) { cout << "KA tidak ditemukan.\n"; return; }
+
+    int count = 0;
+    RelationNode* r = ka->relasi;
+
+    while (r) {
+        count++;
+        r = r->next;
+    }
+
+    cout << "Kereta Api " << ka->nama_kereta 
+         << " (" << ka->no_ka << ") dilayani oleh " 
+         << count << " Stasiun.\n";
+}
+
+void RailwayMLL::countChildTanpaParent() {
+    int count = 0;
+    KeretaApiNode* k = head_kereta;
+
+    cout << "\n=== KA Tanpa Relasi ===\n";
+    
+    while (k) {
+        if (!k->relasi) {
+            cout << k->no_ka << " | " << k->nama_kereta << endl;
+            count++;
+        }
+        k = k->next;
+    }
+
+    cout << "Total Kereta Api tanpa relasi: " << count << endl;
+}
+
+
+void RailwayMLL::countParentTanpaChild() {
+    int count = 0;
+    StationNode* s = head_stasiun;
+
+    cout << "\n=== Stasiun Tanpa Relasi ===\n";
+
+    while (s) {
+        if (!s->relasi) {
+            cout << s->petak_stasiun << " | " << s->nama_stasiun << endl;
+            count++;
+        }
+        s = s->next;
+    }
+
+    cout << "Total Stasiun tanpa relasi: " << count << endl;
 }
