@@ -2,6 +2,8 @@
 #define RAILWAY_MLL_H
 
 #include <string>
+#include <vector>
+#include <utility>
 using namespace std;
 
 
@@ -167,31 +169,31 @@ public:
     // DISPLAY FUNCTIONS (Poin j, k, l, m, n, o)
     // ---------------------------------------------
     /// @brief Menampilkan semua data di List Parent (Stasiun). (Poin j)
-    void showAllParent();
+    vector<string> showAllParent();
 
     /// @brief Menampilkan semua data di List Child (Kereta Api). (Poin k)
-    void showAllChild();
+    vector<string> showAllChild();
 
     /// @brief Menampilkan semua data relasi yang ada (Per Stasiun).
-    void showAllRelations();
+    vector<string> showAllRelations();
     
     /**
      * @brief Menampilkan semua Stasiun yang dilayani oleh KA tertentu (Parent dari Child). (Poin m, n, o)
      * @param no_ka Nomor KA.
      */
-    void showParentFromChild(int no_ka);
+    vector<string> showParentFromChild(int no_ka);
 
     /**
      * @brief Menampilkan semua KA yang singgah di Stasiun tertentu (Child dari Parent). (Poin l, n, o)
      * @param kode_stasiun Kode stasiun.
      */
-    void showChildFromParent(const string& kode_stasiun);
+    vector<string> showChildFromParent(const string& kode_stasiun);
 
     /**
      * @brief Menampilkan semua relasi (Stasiun) yang terhubung ke KA tertentu.
      * @param no_ka Nomor KA.
      */
-    void showRelasiFromKereta(int no_ka);
+    vector<string> showRelasiFromKereta(int no_ka);
 
     // ---------------------------------------------
     // COUNT FUNCTIONS (Poin p, q, r, s)
@@ -200,19 +202,19 @@ public:
      * @brief Menghitung jumlah Stasiun (Parent) yang melayani KA (Child) tertentu. (Poin q)
      * @param no_ka Nomor KA.
      */
-    void countParentOfChild(int no_ka);
-
-    /// @brief Menghitung jumlah KA (Child) yang tidak terhubung ke Stasiun mana pun. (Poin r)
-    void countChildTanpaParent();
-
-    /// @brief Menghitung jumlah Stasiun (Parent) yang tidak melayani KA mana pun. (Poin s)
-    void countParentTanpaChild();
+    int countParentOfChild(int no_ka);
 
     /**
      * @brief Menghitung jumlah KA (Child) yang dilayani oleh Stasiun (Parent) tertentu. (Poin p)
      * @param kode_stasiun Kode stasiun.
      */
-    void countChildOfParent(const string& kode_stasiun);
+    int countChildOfParent(const string& kode_stasiun);
+
+    /// @brief Menghitung jumlah Stasiun (Parent) yang tidak melayani KA mana pun. (Poin s)
+    pair<int, vector<string>> countParentTanpaChild();
+
+    /// @brief Menghitung jumlah KA (Child) yang tidak terhubung ke Stasiun mana pun. (Poin r)
+    pair<int, vector<string>> countChildTanpaParent();
 };
 
 #endif
