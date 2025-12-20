@@ -1,78 +1,127 @@
 #include <iostream>
+#include <string>
+#include <vector>
 #include <limits>
-#include <string> 
-#include "core/railwayMLL.h" 
+#include "core/railwayMLL.h"
+
 using namespace std;
 
+// ============================================================
+// PRINT HELPER
+// ============================================================
+
+void printHelpStasiun() {
+    cout << "\n=== HELP INPUT STASIUN ===\n";
+    cout << "Petak        : 14\n";
+    cout << "Kode Stasiun : CNP\n";
+    cout << "Nama Stasiun : Cirebon Prujakan\n";
+    cout << "Kota         : Cirebon\n";
+    cout << "Tipe Kelas   : 1   (1=Besar, 2=Sedang, 3=Kecil)\n";
+    cout << "Tinggi MDPL  : 31\n";
+    cout << "--------------------------\n";
+    cout << "Catatan:\n";
+    cout << "- Kode Stasiun harus unik\n";
+    cout << "- Nama & Kota boleh mengandung spasi\n";
+}
+
+void printHelpKereta() {
+    cout << "\n=== HELP INPUT KERETA ===\n";
+    cout << "No Kereta   : 21\n";
+    cout << "Nama Kereta : KA Jakalana\n";
+    cout << "Kelas       : ekonomi | bisnis | eksekutif\n";
+    cout << "--------------------------\n";
+    cout << "Catatan:\n";
+    cout << "- No Kereta harus unik\n";
+    cout << "- Penulisan kelas bebas (string)\n";
+}
+
+void printHelpRelasi() {
+    cout << "\n=== HELP INPUT RELASI ===\n";
+    cout << "Kode Stasiun    : JNG\n";
+    cout << "No Kereta       : 103\n";
+    cout << "Waktu Tiba      : 10:30\n";
+    cout << "Waktu Berangkat : 10:45\n";
+    cout << "Info            : Terminus | Berhenti | Susul\n";
+    cout << "--------------------------\n";
+    cout << "Catatan:\n";
+    cout << "- Stasiun & Kereta harus sudah terdaftar\n";
+    cout << "- Format waktu bebas (disarankan HH:MM)\n";
+}
+
+
 // =============================================================
-// HELPER FUNCTIONS
+// INPUT HELPERS 
 // =============================================================
+string inputString(const string& prompt) {
+    string s;
+    cout << prompt;
+    getline(cin, s);
+    return s;
+}
+
+int inputInt(const string& prompt) {
+    string s;
+    int value;
+    while (true) {
+        cout << prompt;
+        getline(cin, s);
+        try {
+            value = stoi(s);
+            return value;
+        } catch (...) {
+            cout << "Input harus berupa angka!\n";
+        }
+    }
+}
+
 void pause() {
     cout << "\nTekan ENTER untuk lanjut...";
-    // Membersihkan buffer sebelum menerima input baru
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
 
-void cleanInput() {
-    // Fungsi untuk membersihkan buffer cin setelah cin >> variabel
-    if (cin.fail()) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    } else {
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    }
-}
-
+// =============================================================
+// DISPLAY HELPER
+// =============================================================
 void displayVector(const vector<string>& data) {
     if (data.empty()) {
-        cout << "Tidak ada data untuk ditampilkan.\n";
+        cout << "Tidak ada data.\n";
         return;
     }
-    for (const string& line : data) {
-        cout << line << endl;
-    }
+    for (const auto& s : data)
+        cout << s << endl;
 }
 
 // =============================================================
 // SUB-MENU RELASI DISPLAY
 // =============================================================
 void menuRelasiDisplay(RailwayMLL &rail) {
-    int pilih, ka;
-    string kode;
-    vector<string> result;
-
+    int pilih;
     do {
-        // ... (Menu item sama) ...
         cout << "\n===== SUB-MENU RELASI: TAMPILKAN =====\n";
-        cout << "1. Tampilkan Semua Relasi (Global)\n"; 
-        cout << "2. Tampilkan KA di Stasiun Tertentu\n"; 
-        cout << "3. Tampilkan Stasiun KA Tertentu\n"; 
+        cout << "1. Tampilkan Semua Relasi\n";
+        cout << "2. Tampilkan KA di Stasiun\n";
+        cout << "3. Tampilkan Stasiun KA\n";
         cout << "0. Kembali\n";
-        cout << "Pilih: ";
-        cin >> pilih;
-        cleanInput();
 
-        switch(pilih) {
+        pilih = inputInt("Pilih: ");
+
+        switch (pilih) {
             case 1:
-                result = rail.showAllRelations();
-                displayVector(result);
+                displayVector(rail.showAllRelations());
                 pause();
                 break;
-            case 2:
-                cout << "Kode Stasiun (str JNG): "; cin >> kode;
-                cleanInput();
-                result = rail.showChildFromParent(kode);
-                displayVector(result);
+            case 2: {
+                string kode = inputString("Kode Stasiun: ");
+                displayVector(rail.showChildFromParent(kode));
                 pause();
                 break;
-            case 3:
-                cout << "No Kereta (int 21): "; cin >> ka;
-                cleanInput();
-                result = rail.showRelasiFromKereta(ka);
-                displayVector(result);
+            }
+            case 3: {
+                int ka = inputInt("No Kereta: ");
+                displayVector(rail.showRelasiFromKereta(ka));
                 pause();
                 break;
+            }
         }
     } while (pilih != 0);
 }
@@ -81,246 +130,212 @@ void menuRelasiDisplay(RailwayMLL &rail) {
 // SUB-MENU RELASI COUNT
 // =============================================================
 void menuRelasiCount(RailwayMLL &rail) {
-    int pilih, ka, count;
-    string kode;
-    pair<int, vector<string>> list_data;
-
+    int pilih;
     do {
-        // ... (Menu item sama) ...
         cout << "\n===== SUB-MENU RELASI: HITUNG =====\n";
-        cout << "1. Hitung KA di Stasiun Tertentu\n"; 
-        cout << "2. Hitung Stasiun KA Tertentu\n"; 
-        cout << "3. Hitung Stasiun Tanpa Relasi\n"; 
-        cout << "4. Hitung KA Tanpa Relasi\n"; 
+        cout << "1. Hitung KA di Stasiun\n";
+        cout << "2. Hitung Stasiun KA\n";
+        cout << "3. Stasiun tanpa Relasi\n";
+        cout << "4. KA tanpa Relasi\n";
         cout << "0. Kembali\n";
-        cout << "Pilih: ";
-        cin >> pilih;
-        cleanInput();
 
-        switch(pilih) {
-            case 1:
-                cout << "Kode Stasiun (str JNG): "; cin >> kode;
-                cleanInput();
-                count = rail.countChildOfParent(kode);
-                if (count >= 0) {
-                    cout << "Stasiun " << kode << " melayani " << count << " Kereta Api.\n";
-                } else {
-                    cout << "Stasiun tidak ditemukan.\n";
-                }
+        pilih = inputInt("Pilih: ");
+
+        switch (pilih) {
+            case 1: {
+                string kode = inputString("Kode Stasiun (int): ");
+                cout << rail.countChildOfParent(kode) << endl;
                 pause();
                 break;
-            case 2:
-                cout << "No Kereta (int 21): "; cin >> ka;
-                cleanInput();
-                count = rail.countParentOfChild(ka);
-                if (count >= 0) {
-                    cout << "KA " << ka << " dilayani oleh " << count << " Stasiun.\n";
-                } else {
-                    cout << "KA tidak ditemukan.\n";
-                }
+            }
+            case 2: {
+                int ka = inputInt("No Kereta (int): ");
+                cout << rail.countParentOfChild(ka) << endl;
                 pause();
                 break;
-            case 3:
-                list_data = rail.countParentTanpaChild();
-                cout << "Total Stasiun tanpa relasi: " << list_data.first << endl;
-                displayVector(list_data.second);
+            }
+            case 3: {
+                auto r = rail.countParentTanpaChild();
+                cout << "Total: " << r.first << endl;
+                displayVector(r.second);
                 pause();
                 break;
-            case 4:
-                list_data = rail.countChildTanpaParent();
-                cout << "Total Kereta Api tanpa relasi: " << list_data.first << endl;
-                displayVector(list_data.second);
+            }
+            case 4: {
+                auto r = rail.countChildTanpaParent();
+                cout << "Total: " << r.first << endl;
+                displayVector(r.second);
                 pause();
                 break;
+            }
         }
     } while (pilih != 0);
 }
 
 // =============================================================
-// MAIN MENU PARENT (STASIUN)
+// MENU STASIUN (PARENT)
 // =============================================================
 void menuParent(RailwayMLL &rail) {
-    int pilih, petak, tipe;
-    unsigned int tinggi;
-    string kode, nama, kota;
-
+    int pilih;
     do {
-        cout << "\n===== MENU STASIUN (PARENT) =====\n";
+        cout << "\n===== MENU STASIUN =====\n";
         cout << "1. Tambah Stasiun\n";
         cout << "2. Hapus Stasiun\n";
         cout << "3. Lihat Semua Stasiun\n";
+        cout << "4. Lihat Contoh Input Stasiun\n";
         cout << "0. Kembali\n";
-        cout << "Pilih: ";
-        cin >> pilih;
-        cleanInput();
 
-        switch(pilih) {
-            case 1:
-                cout << "Petak (int 14): "; cin >>petak;
-                cout << "Kode Stasiun (str CNP): "; cin >> kode;
-                cout << "Nama Stasiun (str 'Cirebon Prujakan'): "; getline(cin, nama);
-                cout << "Kota (str Cirebon): "; getline(cin, kota);
-                cout << "Tipe Kelas (int 1 2 3): "; cin >> tipe;
-                cout << "Tinggi Mdpl (int 31): "; cin >> tinggi;
-                rail.insertParent(petak, kode, nama, kota, tipe, tinggi);
+        pilih = inputInt("Pilih: ");
+
+        switch (pilih) {
+            case 1: {
+                rail.insertParent(
+                    inputInt("Petak (int): "),
+                    inputString("Kode Stasiun (str): "),
+                    inputString("Nama Stasiun (str): "),
+                    inputString("Kota (str): "),
+                    inputInt("Tipe Kelas (int): "),
+                    inputInt("Tinggi MDPL (int): ")
+                );
                 pause();
                 break;
-
+            }
             case 2:
-                cout << "Kode Stasiun (str CN): "; cin >>kode;
-                rail.deleteParent(kode);
+                rail.deleteParent(inputString("Kode Stasiun (str): "));
                 pause();
                 break;
-
             case 3:
-                displayVector(rail.showAllParent()); // MODIFIED
+                displayVector(rail.showAllParent());
+                pause();
+                break;
+            case 4:
+                printHelpStasiun();
                 pause();
                 break;
         }
-
-    } while(pilih != 0);
+    } while (pilih != 0);
 }
 
 // =============================================================
-// MAIN MENU CHILD (KERETA)
+// MENU KERETA (CHILD)
 // =============================================================
 void menuChild(RailwayMLL &rail) {
-    int pilih, no_ka;
-    string nama, kelas;
-
+    int pilih;
     do {
-        cout << "\n===== MENU KERETA (CHILD) =====\n";
+        cout << "\n===== MENU KERETA =====\n";
         cout << "1. Tambah Kereta\n";
         cout << "2. Hapus Kereta\n";
         cout << "3. Lihat Semua Kereta\n";
+        cout << "3. Lihat Contoh Input Kereta\n";
         cout << "0. Kembali\n";
-        cout << "Pilih: ";
-        cin >> pilih;
-        cleanInput();
 
-        switch(pilih) {
+        pilih = inputInt("Pilih: ");
+
+        switch (pilih) {
             case 1:
-                cout << "No Kereta (int 21): "; cin >> no_ka;
-                cout << "Nama Kereta (str 'KA Jakalana'): "; getline(cin, nama);
-                cout << "kelas: (const char[8] 'ekonomi' 'bisnis' 'eksekutif')"; cin >> kelas;
-                rail.insertChild(no_ka, nama, kelas);
+                rail.insertChild(
+                    inputInt("No Kereta (int): "),
+                    inputString("Nama Kereta (str): "),
+                    inputString("Kelas (str): ")
+                );
                 pause();
                 break;
-
             case 2:
-                cout << "No Kereta (int 21): "; cin >> no_ka;
-                rail.deleteChild(no_ka);
+                rail.deleteChild(inputInt("No Kereta (int): "));
                 pause();
                 break;
-
             case 3:
-                displayVector(rail.showAllChild()); // MODIFIED
+                displayVector(rail.showAllChild());
+                pause();
+                break;
+            case 4:
+                printHelpKereta();
                 pause();
                 break;
         }
-
     } while (pilih != 0);
 }
 
 // =============================================================
-// MAIN MENU RELASI
+// MENU RELASI
 // =============================================================
 void menuRelasi(RailwayMLL &rail) {
-    int pilih, ka;
-    string tiba, berangkat, info, kode;
-    RelationNode *r;
-
+    int pilih;
     do {
-        cout << "\n===== MENU RELASI (PARENT <-> CHILD) =====\n";
+        cout << "\n===== MENU RELASI =====\n";
         cout << "1. Tambah Relasi\n";
         cout << "2. Hapus Relasi\n";
         cout << "3. Edit Relasi\n";
-        cout << "4. Cek Relasi (Find)\n";
-        cout << "5. Menu Tampilkan Relasi\n"; 
-        cout << "6. Menu Hitung Relasi\n";    
+        cout << "4. Tampilkan Relasi\n";
+        cout << "5. Hitung Relasi\n";
+        cout << "6. Tampilkan Contoh Input Relasi\n";
         cout << "0. Kembali\n";
-        cout << "Pilih: ";
-        cin >> pilih;
-        cleanInput();
 
-        switch(pilih) {
-            case 1: // Insert Relation
-                cout << "Kode Stasiun (str JNG): "; cin >> kode;
-                cout << "No Kereta (int 103): "; cin >> ka;
-                cout << "Waktu Tiba (str '10:30'): "; cin >> tiba;
-                cout << "Waktu Berangkat (str '10:30'): "; cin >> berangkat;
-                cout << "Info Relasi (str 'Terminus' 'Berhenti' 'Susul/Silang'): "; getline(cin, info);
-                rail.insertRelation(kode, ka, tiba, berangkat, info);
+        pilih = inputInt("Pilih: ");
+
+        switch (pilih) {
+            case 1:
+                rail.insertRelation(
+                    inputString("Kode Stasiun (str): "),
+                    inputInt("No Kereta (int): "),
+                    inputString("Waktu Tiba (str): "),
+                    inputString("Waktu Berangkat (str): "),
+                    inputString("Info (str): ")
+                );
                 pause();
                 break;
-
-            case 2: // Delete Relation
-                cout << "Kode Stasiun: "; cin >> kode;
-                cout << "No Kereta: "; cin >> ka;
-                rail.deleteRelation(kode, ka);
+            case 2:
+                rail.deleteRelation(
+                    inputString("Kode Stasiun (str): "),
+                    inputInt("No Kereta (int): ")
+                );
                 pause();
                 break;
-
-            case 3: // Edit Relation
-                cout << "Kode Stasiun: "; cin >> kode;
-                cout << "No Kereta: "; cin >> ka;
-                cout << "Waktu Tiba Baru: "; cin >> tiba;
-                cout << "Waktu Berangkat Baru: "; cin >> berangkat;
-                rail.editRelation(kode, ka, tiba, berangkat);
+            case 3:
+                rail.editRelation(
+                    inputString("Kode Stasiun (str): "),
+                    inputInt("No Kereta (int): "),
+                    inputString("Waktu Tiba Baru (str): "),
+                    inputString("Waktu Berangkat Baru (str): ")
+                );
                 pause();
                 break;
-
-            case 4: // Find Relasi
-                cout << "Kode Stasiun: "; cin >> kode;
-                cout << "No Kereta: "; cin >> ka;
-                r = rail.findRelasi(kode, ka);
-                if (!r) cout << "Relasi tidak ditemukan.\n";
-                pause();
-                break;
-
-            case 5: // Display Sub-menu
+            case 4:
                 menuRelasiDisplay(rail);
                 break;
-
-            case 6: // Count Sub-menu
+            case 5:
                 menuRelasiCount(rail);
                 break;
+            case 6:
+                printHelpRelasi();
+                break;
         }
-
     } while (pilih != 0);
 }
 
 // =============================================================
-// MAIN PROGRAM
+// MAIN
 // =============================================================
 int main() {
     RailwayMLL rail;
     int pilih;
 
-    // Call cleanInput once here in case there's leftover input from environment
-    cleanInput(); 
-
     do {
-        cout << "\n=========================\n";
-        cout << "   MENU RAILWAY MLL\n";
-        cout << "=========================\n";
-        cout << "1. Menu Stasiun (Parent)\n";
-        cout << "2. Menu Kereta (Child)\n";
+        cout << "\n===== MENU UTAMA =====\n";
+        cout << "1. Menu Stasiun\n";
+        cout << "2. Menu Kereta\n";
         cout << "3. Menu Relasi\n";
         cout << "0. Exit\n";
-        cout << "Pilih menu: ";
-        cin >> pilih;
-        cleanInput();
 
-        switch(pilih) {
+        pilih = inputInt("Pilih: ");
+
+        switch (pilih) {
             case 1: menuParent(rail); break;
             case 2: menuChild(rail); break;
             case 3: menuRelasi(rail); break;
-            case 0: cout << "Keluar...\n"; break;
-            default: cout << "Pilihan tidak valid.\n"; pause();
         }
+    } while (pilih != 0);
 
-    } while(pilih != 0);
-
+    cout << "Keluar...\n";
     return 0;
 }

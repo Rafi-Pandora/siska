@@ -30,3 +30,5 @@ set(SOURCES
 
 # Build executable
 add_executable(SISKA ${SOURCES})
+
+target_link_libraries(SISKA sqlite3)
