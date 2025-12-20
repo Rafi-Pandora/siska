@@ -11,7 +11,7 @@ private:
     sqlite3* DB;
     
 public:
-    DatabaseManager(const char* s);
+    DatabaseManager(const char* file);
     ~DatabaseManager();
 
     // Fungsi Utama: Memuat semua data dari DB ke struktur MLL saat startup

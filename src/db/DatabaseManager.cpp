@@ -1,8 +1,8 @@
 #include "DatabaseManager.h"
 #include <iostream>
 
-DatabaseManager::DatabaseManager(const char* s) {
-    int exit = sqlite3_open(s, &DB);
+DatabaseManager::DatabaseManager(const char* file) {
+    int exit = sqlite3_open(file, &DB);
     if (exit != SQLITE_OK) {
         std::cerr << "Error open DB: " << sqlite3_errmsg(DB) << std::endl;
     } else {
