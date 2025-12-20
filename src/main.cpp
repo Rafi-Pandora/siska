@@ -3,6 +3,7 @@
 #include <vector>
 #include <limits>
 #include "core/railwayMLL.h"
+#include "db/DatabaseManager.h"
 
 using namespace std;
 
@@ -89,6 +90,22 @@ void displayVector(const vector<string>& data) {
     }
     for (const auto& s : data)
         cout << s << endl;
+}
+
+void persistentStorage(DatabaseManager* &db, RailwayMLL &rail) {
+    int input;
+    do
+    {
+        cout << "dengan menggunakan Persistent Storage kamu mengizinkan segala perubahan akan disimpan secara lokal dan akan memuat data dari penyimpanan lokal kamu\n1.setuju\n0.kembali" << endl;
+        inputInt("");
+        if (input == 1)
+        {
+            db = new DatabaseManager(string(DB_PATH));
+            rail.setDatabase(db);
+        }
+    } while (input != 0);
+    
+    
 }
 
 // =============================================================
@@ -317,6 +334,7 @@ void menuRelasi(RailwayMLL &rail) {
 // =============================================================
 int main() {
     RailwayMLL rail;
+    DatabaseManager db = nullptr;
     int pilih;
 
     do {
@@ -324,6 +342,7 @@ int main() {
         cout << "1. Menu Stasiun\n";
         cout << "2. Menu Kereta\n";
         cout << "3. Menu Relasi\n";
+        cout << "4. Persistent Storage\n";
         cout << "0. Exit\n";
 
         pilih = inputInt("Pilih: ");

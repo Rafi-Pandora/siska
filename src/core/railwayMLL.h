@@ -49,7 +49,7 @@ struct RelationNode {
     KeretaApiNode* childKereta;   // pointer ke Child
 };
 
-
+class DatabaseManager;
 
 //       CLASS MLL
 
@@ -58,11 +58,14 @@ public:
 
     StationNode* head_stasiun; 
     KeretaApiNode* head_kereta;
+    DatabaseManager* db;
 
     /// @brief Constructor
     RailwayMLL();
     /// @brief Destructor, menghapus semua node (Parent, Child, dan Relasi).
     ~RailwayMLL();
+
+    void setDatabase(DatabaseManager* dbMgr) { db = dbMgr; }
 
     // Pencegahan Copy Constructor dan Assignment Operator
     RailwayMLL(const RailwayMLL&) = delete;

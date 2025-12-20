@@ -1,4 +1,5 @@
 #include "railwayMLL.h"
+#include "../db/DatabaseManager.h"
 #include <iostream>
 #include <sstream> 
 #include <iomanip> 
@@ -26,6 +27,7 @@ void deleteRelationFromList(RelationNode*& head, RelationNode*& target) {
 RailwayMLL::RailwayMLL() {
     head_stasiun = nullptr;
     head_kereta  = nullptr;
+    db = nullptr;
 }
 
 RailwayMLL::~RailwayMLL() {
@@ -126,6 +128,7 @@ void RailwayMLL::insertParent(int petak, const string& kode,
     }
 
     cout << "Stasiun ditambahkan.\n";
+    if (db != nullptr) db->addStationDB(node);
 }
 
 // =============================================================
@@ -153,6 +156,7 @@ void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas)
     }
 
     cout << "Kereta ditambahkan.\n";
+    if (db != nullptr) db->addKeretaDB(node);
 }
 
 // =============================================================
@@ -187,12 +191,14 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
     ka->relasi = node;
 
     cout << "Relasi berhasil ditambahkan.\n";
+    if (db != nullptr) db->addRelasiDB(node);
 }
 
 // =============================================================
 // DELETE RELATION
 // =============================================================
 void RailwayMLL::deleteRelation(const string& kode_stasiun, int no_ka) {
+    if (db != nullptr) db->deleteRelasiDB(kode_stasiun, no_ka);
     StationNode* st = findStasiun(kode_stasiun);
     KeretaApiNode* ka = findKereta(no_ka);
 
@@ -225,8 +231,9 @@ void RailwayMLL::deleteRelation(const string& kode_stasiun, int no_ka) {
 // =============================================================
 // DELETE CHILD
 // =============================================================
-void RailwayMLL::deleteChild(int ka_id) {
-    KeretaApiNode* target = findKereta(ka_id);
+void RailwayMLL::deleteChild(int no_ka) {
+    if (db != nullptr) db->deleteKeretaDB(no_ka);
+    KeretaApiNode* target = findKereta(no_ka);
     if (!target) {
         cout << "KA tidak ditemukan.\n";
         return;
@@ -296,6 +303,7 @@ void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka,
 // DELETE PARENT
 // =============================================================
 void RailwayMLL::deleteParent(const string& kode_stasiun) {
+    if (db != nullptr) db->deleteStationDB(kode_stasiun);
     StationNode* st = findStasiun(kode_stasiun);
     if (!st) { cout << "Stasiun tidak ditemukan.\n"; return; }
 
