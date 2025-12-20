@@ -5,6 +5,10 @@
 #include "core/railwayMLL.h"
 #include "db/DatabaseManager.h"
 
+#ifndef DB_PATH
+#define DB_PATH "data/railway.db"
+#endif
+
 using namespace std;
 
 // ============================================================
@@ -93,19 +97,36 @@ void displayVector(const vector<string>& data) {
 }
 
 void persistentStorage(DatabaseManager* &db, RailwayMLL &rail) {
+    if (db != nullptr) {
+        cout << "\n[INFO] Persistent Storage sudah aktif." << endl;
+        return;
+    }
+
     int input;
-    do
-    {
-        cout << "dengan menggunakan Persistent Storage kamu mengizinkan segala perubahan akan disimpan secara lokal dan akan memuat data dari penyimpanan lokal kamu\n1.setuju\n0.kembali" << endl;
-        inputInt("");
-        if (input == 1)
-        {
-            db = new DatabaseManager(string(DB_PATH));
-            rail.setDatabase(db);
-        }
-    } while (input != 0);
+    cout << "\n========================================================" << endl;
+    cout << "                PERSISTENT STORAGE SETUP                " << endl;
+    cout << "========================================================" << endl;
+    cout << "Dengan mengaktifkan fitur ini:\n";
+    cout << "1. Segala perubahan (Tambah/Hapus) akan disimpan ke lokal.\n";
+    cout << "2. Data dari sesi sebelumnya akan dimuat otomatis.\n";
+    cout << "--------------------------------------------------------" << endl;
+    cout << "1. Setuju & Aktifkan\n";
+    cout << "0. Kembali (Mode Memory-Only)\n";
     
-    
+    input = inputInt("Pilih: ");
+
+    if (input == 1) {
+        db = new DatabaseManager(DB_PATH);
+        
+        rail.setDatabase(db);
+        
+        cout << "[SISTEM] Memuat data dari " << DB_PATH << "..." << endl;
+        db->loadDataToMLL(rail);
+        
+        cout << "[SUCCESS] Database terhubung dan data telah disinkronkan." << endl;
+    } else {
+        cout << "[SISTEM] Kembali ke menu utama (Tanpa Storage)." << endl;
+    }
 }
 
 // =============================================================
@@ -334,7 +355,7 @@ void menuRelasi(RailwayMLL &rail) {
 // =============================================================
 int main() {
     RailwayMLL rail;
-    DatabaseManager db = nullptr;
+    DatabaseManager *db = nullptr;
     int pilih;
 
     do {
@@ -351,6 +372,7 @@ int main() {
             case 1: menuParent(rail); break;
             case 2: menuChild(rail); break;
             case 3: menuRelasi(rail); break;
+            case 4: persistentStorage(db, rail);
         }
     } while (pilih != 0);
 
