@@ -32,3 +32,6 @@ set(SOURCES
 add_executable(SISKA ${SOURCES})
 
 target_link_libraries(SISKA sqlite3)
+target_compile_definitions(SISKA 
+    PRIVATE DB_PATH="${CMAKE_SOURCE_DIR}/data/railway.db"
+)
