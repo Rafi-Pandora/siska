@@ -60,14 +60,14 @@ void menuRelasiDisplay(RailwayMLL &rail) {
                 pause();
                 break;
             case 2:
-                cout << "Kode Stasiun: "; cin >> kode;
+                cout << "Kode Stasiun (str JNG): "; cin >> kode;
                 cleanInput();
                 result = rail.showChildFromParent(kode);
                 displayVector(result);
                 pause();
                 break;
             case 3:
-                cout << "No Kereta: "; cin >> ka;
+                cout << "No Kereta (int 21): "; cin >> ka;
                 cleanInput();
                 result = rail.showRelasiFromKereta(ka);
                 displayVector(result);
@@ -99,7 +99,7 @@ void menuRelasiCount(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1:
-                cout << "Kode Stasiun: "; cin >> kode;
+                cout << "Kode Stasiun (str JNG): "; cin >> kode;
                 cleanInput();
                 count = rail.countChildOfParent(kode);
                 if (count >= 0) {
@@ -110,7 +110,7 @@ void menuRelasiCount(RailwayMLL &rail) {
                 pause();
                 break;
             case 2:
-                cout << "No Kereta: "; cin >> ka;
+                cout << "No Kereta (int 21): "; cin >> ka;
                 cleanInput();
                 count = rail.countParentOfChild(ka);
                 if (count >= 0) {
@@ -156,18 +156,18 @@ void menuParent(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1:
-                cout << "Petak: "; cin >>petak;
-                cout << "Kode Stasiun: "; cin >> kode;
-                cout << "Nama Stasiun: "; cin >> nama;
-                cout << "Kota: "; cin >> kota;
-                cout << "Tipe Kelas: "; cin >> tipe;
-                cout << "Tinggi Mdpl: "; cin >> tinggi;
+                cout << "Petak (int 14): "; cin >>petak;
+                cout << "Kode Stasiun (str CNP): "; cin >> kode;
+                cout << "Nama Stasiun (str 'Cirebon Prujakan'): "; getline(cin, nama);
+                cout << "Kota (str Cirebon): "; getline(cin, kota);
+                cout << "Tipe Kelas (int 1 2 3): "; cin >> tipe;
+                cout << "Tinggi Mdpl (int 31): "; cin >> tinggi;
                 rail.insertParent(petak, kode, nama, kota, tipe, tinggi);
                 pause();
                 break;
 
             case 2:
-                cout << "Kode Stasiun: "; cin >>kode;
+                cout << "Kode Stasiun (str CN): "; cin >>kode;
                 rail.deleteParent(kode);
                 pause();
                 break;
@@ -200,15 +200,15 @@ void menuChild(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1:
-                cout << "No Kereta: "; cin >> no_ka;
-                cout << "Nama Kereta: "; cin >> nama;
-                cout << "kelas: "; cin >> kelas;
+                cout << "No Kereta (int 21): "; cin >> no_ka;
+                cout << "Nama Kereta (str 'KA Jakalana'): "; getline(cin, nama);
+                cout << "kelas: (const char[8] 'ekonomi' 'bisnis' 'eksekutif')"; cin >> kelas;
                 rail.insertChild(no_ka, nama, kelas);
                 pause();
                 break;
 
             case 2:
-                cout << "No Kereta: "; cin >> no_ka;
+                cout << "No Kereta (int 21): "; cin >> no_ka;
                 rail.deleteChild(no_ka);
                 pause();
                 break;
@@ -245,11 +245,11 @@ void menuRelasi(RailwayMLL &rail) {
 
         switch(pilih) {
             case 1: // Insert Relation
-                cout << "Kode Stasiun: "; cin >> kode;
-                cout << "No Kereta: "; cin >> ka;
-                cout << "Waktu Tiba: "; cin >> tiba;
-                cout << "Waktu Berangkat: "; cin >> berangkat;
-                cout << "Info Relasi: "; cin >> info;
+                cout << "Kode Stasiun (str JNG): "; cin >> kode;
+                cout << "No Kereta (int 103): "; cin >> ka;
+                cout << "Waktu Tiba (str '10:30'): "; cin >> tiba;
+                cout << "Waktu Berangkat (str '10:30'): "; cin >> berangkat;
+                cout << "Info Relasi (str 'Terminus' 'Berhenti' 'Susul/Silang'): "; getline(cin, info);
                 rail.insertRelation(kode, ka, tiba, berangkat, info);
                 pause();
                 break;
