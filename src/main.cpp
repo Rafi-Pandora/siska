@@ -176,7 +176,8 @@ void menuRelasiCount(RailwayMLL &rail) {
 // MENU STASIUN (PARENT)
 // =============================================================
 void menuParent(RailwayMLL &rail) {
-    int pilih;
+    int pilih, petak, kelas, tinggi;
+    string kode_stasiun, nama_stasiun, kota;
     do {
         cout << "\n===== MENU STASIUN =====\n";
         cout << "1. Tambah Stasiun\n";
@@ -189,14 +190,13 @@ void menuParent(RailwayMLL &rail) {
 
         switch (pilih) {
             case 1: {
-                rail.insertParent(
-                    inputInt("Petak (int): "),
-                    inputString("Kode Stasiun (str): "),
-                    inputString("Nama Stasiun (str): "),
-                    inputString("Kota (str): "),
-                    inputInt("Tipe Kelas (int): "),
-                    inputInt("Tinggi MDPL (int): ")
-                );
+                nama_stasiun = inputString("Nama Stasiun (str): ");
+                kode_stasiun = inputString("Kode Stasiun (str): ");
+                kota = inputString("Kota (str): ");
+                petak = inputInt("Petak (int): ");
+                kelas = inputInt("Tipe Kelas (int): ");
+                tinggi = inputInt("Tinggi MDPL (int): ");
+                rail.insertParent(petak, kode_stasiun, nama_stasiun, kota, kelas, tinggi);
                 pause();
                 break;
             }
@@ -220,7 +220,8 @@ void menuParent(RailwayMLL &rail) {
 // MENU KERETA (CHILD)
 // =============================================================
 void menuChild(RailwayMLL &rail) {
-    int pilih;
+    int pilih, no_kereta;
+    string nama_kereta, kelas;
     do {
         cout << "\n===== MENU KERETA =====\n";
         cout << "1. Tambah Kereta\n";
@@ -233,11 +234,10 @@ void menuChild(RailwayMLL &rail) {
 
         switch (pilih) {
             case 1:
-                rail.insertChild(
-                    inputInt("No Kereta (int): "),
-                    inputString("Nama Kereta (str): "),
-                    inputString("Kelas (str): ")
-                );
+                no_kereta = inputInt("No Kereta (int): ");
+                nama_kereta = inputString("Nama Kereta (str): ");
+                kelas = inputString("Kelas (str): ");
+                rail.insertChild(no_kereta, nama_kereta, kelas);
                 pause();
                 break;
             case 2:
@@ -260,7 +260,8 @@ void menuChild(RailwayMLL &rail) {
 // MENU RELASI
 // =============================================================
 void menuRelasi(RailwayMLL &rail) {
-    int pilih;
+    int pilih, no_kereta;
+    string kode_stasiun, waktu_tiba, waktu_berangkat, info;
     do {
         cout << "\n===== MENU RELASI =====\n";
         cout << "1. Tambah Relasi\n";
@@ -275,13 +276,12 @@ void menuRelasi(RailwayMLL &rail) {
 
         switch (pilih) {
             case 1:
-                rail.insertRelation(
-                    inputString("Kode Stasiun (str): "),
-                    inputInt("No Kereta (int): "),
-                    inputString("Waktu Tiba (str): "),
-                    inputString("Waktu Berangkat (str): "),
-                    inputString("Info (str): ")
-                );
+                kode_stasiun = inputString("Kode Stasiun (str): ");
+                no_kereta = inputInt("No Kereta (int): ");
+                waktu_tiba = inputString("Waktu Tiba (str): ");
+                waktu_berangkat = inputString("Waktu Berangkat (str): ");
+                info = inputString("Info (str): ");
+                rail.insertRelation(kode_stasiun, no_kereta, waktu_tiba, waktu_berangkat, info);
                 pause();
                 break;
             case 2:
@@ -292,12 +292,11 @@ void menuRelasi(RailwayMLL &rail) {
                 pause();
                 break;
             case 3:
-                rail.editRelation(
-                    inputString("Kode Stasiun (str): "),
-                    inputInt("No Kereta (int): "),
-                    inputString("Waktu Tiba Baru (str): "),
-                    inputString("Waktu Berangkat Baru (str): ")
-                );
+                kode_stasiun = inputString("Kode Stasiun (str): ");
+                no_kereta = inputInt("No Kereta (int): ");
+                waktu_tiba = inputString("Waktu Tiba Baru (str): ");
+                waktu_berangkat = inputString("Waktu Berangkat Baru (str): ");
+                rail.editRelation(kode_stasiun, no_kereta, waktu_tiba, waktu_berangkat);
                 pause();
                 break;
             case 4:
