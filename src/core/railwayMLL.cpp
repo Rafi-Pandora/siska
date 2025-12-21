@@ -169,26 +169,30 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
     KeretaApiNode* ka = findKereta(no_ka);
 
     if (!st || !ka) {
-        cout << "Error: stasiun atau KA tidak ditemukan.\n";
+        cout << "Error: Stasiun atau KA tidak ditemukan.\n";
         return;
     }
 
     // Membuat node relasi
-    RelationNode* node = new RelationNode{
-        tiba, berangkat, info,
-        st->relasi, nullptr, // next, prev
-        st, ka               // parent & child pointer
-    };
+    RelationNode* node = new RelationNode();
+    node->waktu_kedatangan = tiba;
+    node->waktu_keberangkatan = berangkat;
+    node->info_relasi = info;
+    node->parentStation = st; // Simpan pointer ke stasiun (Parent)
+    node->childKereta = ka;   // Simpan pointer ke kereta (Child)
 
-    if (st->relasi)
+    // LOGIKA MLL TIPE B:
+    // Hubungkan node ini HANYA ke list relasi milik Stasiun (st->relasi)
+    node->next = st->relasi; 
+    node->prev = nullptr;
+
+    if (st->relasi != nullptr) {
         st->relasi->prev = node;
-
+    }
     st->relasi = node;
 
-    // Tambahkan node ke list relasi milik KA
-    node->next = ka->relasi;
-    if (ka->relasi) ka->relasi->prev = node;
-    ka->relasi = node;
+    // PENTING: Jangan hubungkan node->next ke ka->relasi! 
+    // Di Tipe B, Kereta tidak perlu memegang list relasi secara langsung.
 
     cout << "Relasi berhasil ditambahkan.\n";
     if (db != nullptr) db->addRelasiDB(node);
@@ -374,27 +378,16 @@ vector<string> RailwayMLL::showAllChild() {
 vector<string> RailwayMLL::showAllRelations() {
     vector<string> result;
     StationNode* s = head_stasiun;
-    
-    result.push_back("--- DAFTAR SEMUA RELASI JALAN (Per Stasiun) ---");
-
     while (s) {
         RelationNode* r = s->relasi;
         if (r) {
-            result.push_back("--- Stasiun: " + s->nama_stasiun + " (" + s->kode_stasiun + ") ---");
+            result.push_back("--- Stasiun: " + s->nama_stasiun + " ---");
             while (r) {
-                stringstream ss;
-                ss << "  KA " << r->childKereta->nama_kereta 
-                   << " | Tiba: " << r->waktu_kedatangan
-                   << " | Brkt: " << r->waktu_keberangkatan
-                   << " | Info: " << r->info_relasi;
-                result.push_back(ss.str());
+                result.push_back("  KA " + r->childKereta->nama_kereta);
                 r = r->next;
             }
         }
         s = s->next;
-    }
-    if (result.size() == 1) { // Hanya ada header awal
-        result.push_back("Tidak ada relasi yang tercatat.");
     }
     return result;
 }
@@ -425,34 +418,24 @@ vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
 }
 
 vector<string> RailwayMLL::showParentFromChild(int no_ka) {
-    // Logika sama dengan showRelasiFromKereta
     return showRelasiFromKereta(no_ka);
 }
 
 vector<string> RailwayMLL::showRelasiFromKereta(int no_ka) {
     vector<string> result;
-    KeretaApiNode* ka = findKereta(no_ka);
-    if (!ka) { 
-        result.push_back("KA tidak ditemukan."); 
-        return result; 
-    }
+    StationNode* s = head_stasiun;
+    
+    result.push_back("Mencari rute untuk KA No: " + to_string(no_ka));
 
-    result.push_back("=== Stasiun yang dilayani KA " + ka->nama_kereta + " ===");
-
-    RelationNode* r = ka->relasi;
-    if (!r) {
-        result.push_back("KA ini belum melayani stasiun manapun.");
-        return result;
-    }
-
-    while (r) {
-        stringstream ss;
-        ss << "Stasiun: " << r->parentStation->nama_stasiun
-           << " | Tiba: " << r->waktu_kedatangan
-           << " | Brkt: " << r->waktu_keberangkatan
-           << " | Info: " << r->info_relasi;
-        result.push_back(ss.str());
-        r = r->next;
+    while (s) {
+        RelationNode* r = s->relasi;
+        while (r) {
+            if (r->childKereta->no_ka == no_ka) {
+                result.push_back("Melayani Stasiun: " + s->nama_stasiun);
+            }
+            r = r->next;
+        }
+        s = s->next;
     }
     return result;
 }
