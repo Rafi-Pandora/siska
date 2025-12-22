@@ -258,9 +258,17 @@ void menuParent(RailwayMLL &rail) {
                 break;
             case  5:
                 kode_stasiun=inputString("Kode Stasiun (str): ");
-               if (rail.findStasiun(kode_stasiun)== nullptr) {
+                StationNode* s = rail.findStasiun(kode_stasiun);
+                if (s == nullptr) {
                     cout<<"Stasiun dengan kode tersebut tidak ditemukan";
-               } else { cout<<"Stasiun Ditemukan";}
+                } else {
+                    cout<<s->nama_stasiun << " | "
+                        <<s->kode_stasiun << " | +"
+                        <<s->tinggi_stasiun_mdpl << "m | "
+                        <<s->tipe_kelas_stasiun << " | "
+                        <<s->petak_stasiun << " | "
+                        <<s->kota << endl;
+                }
                 break;
         }
     } while (pilih != 0);
@@ -305,9 +313,14 @@ void menuChild(RailwayMLL &rail) {
                 break;
             case 5:
                 no_kereta=inputInt("Nomor Kereta (int): ");
-                if (rail.findKereta(no_kereta)== nullptr){
+                KeretaApiNode* k = rail.findKereta(no_kereta);
+                if (k == nullptr){
                     cout<<"Kereta dengan nomor tersebut tidak ditemukan";
-                } else { cout<< "Kereta ditemukan"; }
+                } else {
+                    cout << k->no_ka << " "
+                    << k->nama_kereta
+                    << " Kelas: " << k->kelas << endl; 
+                }
                 break;
         }
     } while (pilih != 0);
