@@ -518,7 +518,7 @@ vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
     RelationNode* r = st->relasi;
     while (r) {
         stringstream ss;
-        ss << "KA: " << r->childKereta->nama_kereta
+        ss << "KA: " << r->childKereta->nama_kereta << r->childKereta->no_ka
            << " | Tiba: " << r->waktu_kedatangan
            << " | Brkt: " << r->waktu_keberangkatan
            << " | Info: " << r->info_relasi;
@@ -545,7 +545,7 @@ vector<string> RailwayMLL::showRelasiFromKereta(int no_ka) {
         RelationNode* r = s->relasi;
         while (r) {
             if (r->childKereta->no_ka == no_ka) {
-                result.push_back("Melayani Stasiun: " + s->nama_stasiun);
+                result.push_back(r->childKereta->nama_kereta + " Melayani Stasiun: " + s->nama_stasiun);
             }
             r = r->next;
         }
@@ -589,7 +589,21 @@ pair<int, vector<string>> RailwayMLL::countChildTanpaParent() {
     KeretaApiNode* k = head_kereta;
 
     while (k) {
-        if (!k->relasi) {
+        bool ditemukan = false;
+        StationNode* s = head_stasiun;
+        
+        while (s && !ditemukan) {
+            RelationNode* r = s->relasi;
+            while (r && !ditemukan) {
+                if (r->childKereta == k) {
+                    ditemukan = true;
+                }
+                r = r->next;
+            }
+            s = s->next;
+        }
+
+        if (!ditemukan) {
             stringstream ss;
             ss << k->no_ka << " | " << k->nama_kereta;
             list_ka.push_back(ss.str());
@@ -608,7 +622,7 @@ pair<int, vector<string>> RailwayMLL::countParentTanpaChild() {
     while (s) {
         if (!s->relasi) {
             stringstream ss;
-            ss << s->petak_stasiun << " | " << s->nama_stasiun;
+            ss << s->petak_stasiun << " | " << s->nama_stasiun << " " + s->kode_stasiun << "|" << " +" << s->tinggi_stasiun_mdpl << "m";
             list_stasiun.push_back(ss.str());
             count++;
         }
