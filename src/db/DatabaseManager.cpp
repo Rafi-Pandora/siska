@@ -144,3 +144,49 @@ void DatabaseManager::deleteRelasiDB(std::string kode, int no_ka) {
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
 }
+
+// =============================================================
+// FUNGSI UPDATE / EDIT (SINKRONISASI KE DB)
+// =============================================================
+
+void DatabaseManager::updateRelasiData(const std::string& kode_stasiun, int no_ka, 
+                                      const std::string& tiba, const std::string& berangkat) {
+    std::string sql = "UPDATE relasi SET waktu_tiba = ?, waktu_berangkat = ? "
+                      "WHERE kode_stasiun = ? AND no_ka = ?;";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+
+    sqlite3_bind_text(stmt, 1, tiba.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, berangkat.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 3, kode_stasiun.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 4, no_ka);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+void DatabaseManager::updateRelasiChild(const std::string& kode_stasiun, int old_no_ka, int new_no_ka) {
+    std::string sql = "UPDATE relasi SET no_ka = ? WHERE kode_stasiun = ? AND no_ka = ?;";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+
+    sqlite3_bind_int(stmt, 1, new_no_ka);
+    sqlite3_bind_text(stmt, 2, kode_stasiun.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, old_no_ka);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}
+
+void DatabaseManager::updateRelasiParent(const std::string& old_kode, const std::string& new_kode, int no_ka) {
+    std::string sql = "UPDATE relasi SET kode_stasiun = ? WHERE kode_stasiun = ? AND no_ka = ?;";
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(DB, sql.c_str(), -1, &stmt, NULL);
+
+    sqlite3_bind_text(stmt, 1, new_kode.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(stmt, 2, old_kode.c_str(), -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int(stmt, 3, no_ka);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+}

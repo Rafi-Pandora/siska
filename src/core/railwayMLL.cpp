@@ -94,7 +94,7 @@ RelationNode* RailwayMLL::findRelasi(const string& kode_stasiun, int no_ka) {
     while (r) {
         if (r->parentStation == st && r->childKereta == ka) {
             cout << "Relasi Stasiun " << st->nama_stasiun 
-                 << " dan KA " << ka->nama_kereta << " DITEMUKAN.\n";
+                 << " dan " << ka->nama_kereta << " DITEMUKAN.\n";
             return r;
         }
         r = r->next;
@@ -143,7 +143,7 @@ void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas)
     KeretaApiNode* node = new KeretaApiNode{
         no_ka, nama, kelas,
         nullptr, nullptr,
-        nullptr // <--- child relasi list
+        nullptr 
     };
 
     if (!head_kereta) {
@@ -178,11 +178,9 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
     node->waktu_kedatangan = tiba;
     node->waktu_keberangkatan = berangkat;
     node->info_relasi = info;
-    node->parentStation = st; // Simpan pointer ke stasiun (Parent)
-    node->childKereta = ka;   // Simpan pointer ke kereta (Child)
+    node->parentStation = st; 
+    node->childKereta = ka;   
 
-    // LOGIKA MLL TIPE B:
-    // Hubungkan node ini HANYA ke list relasi milik Stasiun (st->relasi)
     node->next = st->relasi; 
     node->prev = nullptr;
 
@@ -190,9 +188,6 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
         st->relasi->prev = node;
     }
     st->relasi = node;
-
-    // PENTING: Jangan hubungkan node->next ke ka->relasi! 
-    // Di Tipe B, Kereta tidak perlu memegang list relasi secara langsung.
 
     cout << "Relasi berhasil ditambahkan.\n";
     if (db != nullptr) db->addRelasiDB(node);
@@ -243,20 +238,17 @@ void RailwayMLL::deleteChild(int no_ka) {
         return;
     }
 
-    // 1. Hapus semua RELATION yang terhubung ke KA ini
     RelationNode* r = target->relasi;
     while (r) {
         RelationNode* next = r->next;
 
         StationNode* st = r->parentStation;
 
-        // Lepas node relasi dari parent station
         if (r->prev) r->prev->next = r->next;
         else st->relasi = r->next;
 
         if (r->next) r->next->prev = r->prev;
 
-        // Lepas dari child list (KA)
         if (r->next && r->next->parentStation == st)
             r->next->prev = r->prev;
 
@@ -265,7 +257,6 @@ void RailwayMLL::deleteChild(int no_ka) {
         r = next;
     }
 
-    // 2. Hapus KA dari DLL child list
     if (target->prev)
         target->prev->next = target->next;
     else
@@ -292,7 +283,6 @@ void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka,
         return;
     }
 
-    // Lakukan perubahan data
     r->waktu_kedatangan = new_tiba;
     r->waktu_keberangkatan = new_berangkat;
 
@@ -301,6 +291,8 @@ void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka,
     cout << "  KA: " << r->childKereta->nama_kereta << endl;
     cout << "  Waktu Tiba Baru: " << r->waktu_kedatangan << endl;
     cout << "  Waktu Berangkat Baru: " << r->waktu_keberangkatan << endl;
+
+    if (db != nullptr) db->updateRelasiData(kode_stasiun, no_ka, new_tiba, new_berangkat);
 }
 
 void RailwayMLL::editRelationChangeChild(
@@ -325,6 +317,8 @@ void RailwayMLL::editRelationChangeChild(
     cout << "Relasi berhasil diubah (Child diganti):\n";
     cout << "  Stasiun : " << r->parentStation->nama_stasiun << endl;
     cout << "  KA Baru : " << newKereta->nama_kereta << endl;
+
+    if (db != nullptr) db->updateRelasiChild(kode_stasiun, old_no_ka, new_no_ka);
 }
 
 void RailwayMLL::editRelationChangeParent(
@@ -370,6 +364,8 @@ void RailwayMLL::editRelationChangeParent(
     cout << "  KA       : " << r->childKereta->nama_kereta << endl;
     cout << "  Dari     : " << oldStation->nama_stasiun << endl;
     cout << "  Ke       : " << newStation->nama_stasiun << endl;
+
+    if (db != nullptr) db->updateRelasiParent(old_kode_stasiun, new_kode_stasiun, no_ka);
 }
 
 
@@ -381,7 +377,6 @@ void RailwayMLL::deleteParent(const string& kode_stasiun) {
     StationNode* st = findStasiun(kode_stasiun);
     if (!st) { cout << "Stasiun tidak ditemukan.\n"; return; }
 
-    // Hapus seluruh relasi station ini
     RelationNode* r = st->relasi;
     while (r) {
         RelationNode* next = r->next;
@@ -389,7 +384,6 @@ void RailwayMLL::deleteParent(const string& kode_stasiun) {
         r = next;
     }
 
-    // Remove parent from list
     if (head_stasiun == st) {
         head_stasiun = st->next;
     } else {
@@ -520,7 +514,7 @@ vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
         stringstream ss;
         ss << "KA: " << r->childKereta->nama_kereta << r->childKereta->no_ka
            << " | Tiba: " << r->waktu_kedatangan
-           << " | Brkt: " << r->waktu_keberangkatan
+           << " | Berangkat: " << r->waktu_keberangkatan
            << " | Info: " << r->info_relasi;
         result.push_back(ss.str());
         r = r->next;

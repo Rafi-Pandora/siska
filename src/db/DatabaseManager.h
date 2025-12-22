@@ -26,6 +26,11 @@ public:
     void deleteStationDB(std::string kode);
     void deleteKeretaDB(int no_ka);
     void deleteRelasiDB(std::string kode, int no_ka);
+
+    // Fungsi Update (U dalam CRUD)
+    void updateRelasiData(const string& kode_stasiun, int no_ka, const string& tiba, const string& berangkat);
+    void updateRelasiChild(const string& kode_stasiun, int old_no_ka, int new_no_ka);
+    void updateRelasiParent(const string& old_kode, const string& new_kode, int no_ka);
 };
 
 #endif
