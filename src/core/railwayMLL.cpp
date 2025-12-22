@@ -127,7 +127,7 @@ void RailwayMLL::insertParent(int petak, const string& kode,
         last->next = node;
     }
 
-    cout << "Stasiun ditambahkan.\n";
+    cout << "Stasiun " << nama << " ditambahkan.\n";
     if (db != nullptr) db->addStationDB(node);
 }
 
@@ -155,7 +155,7 @@ void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas)
         node->prev = tail;
     }
 
-    cout << "Kereta ditambahkan.\n";
+    cout << "Kereta " << nama << " ditambahkan.\n";
     if (db != nullptr) db->addKeretaDB(node);
 }
 
@@ -189,7 +189,7 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
     }
     st->relasi = node;
 
-    cout << "Relasi berhasil ditambahkan.\n";
+    cout << "Relasi Stasiun " << st->nama_stasiun << " dengan Kereta " << ka->nama_kereta << " berhasil ditambahkan.\n";
     if (db != nullptr) db->addRelasiDB(node);
 }
 
