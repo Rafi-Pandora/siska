@@ -303,6 +303,76 @@ void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka,
     cout << "  Waktu Berangkat Baru: " << r->waktu_keberangkatan << endl;
 }
 
+void RailwayMLL::editRelationChangeChild(
+    const string& kode_stasiun,
+    int old_no_ka,
+    int new_no_ka
+) {
+    RelationNode* r = findRelasi(kode_stasiun, old_no_ka);
+    if (!r) {
+        cout << "Error: Relasi lama tidak ditemukan.\n";
+        return;
+    }
+
+    KeretaApiNode* newKereta = findKereta(new_no_ka);
+    if (!newKereta) {
+        cout << "Error: Kereta baru tidak ditemukan.\n";
+        return;
+    }
+
+    r->childKereta = newKereta;
+
+    cout << "Relasi berhasil diubah (Child diganti):\n";
+    cout << "  Stasiun : " << r->parentStation->nama_stasiun << endl;
+    cout << "  KA Baru : " << newKereta->nama_kereta << endl;
+}
+
+void RailwayMLL::editRelationChangeParent(
+    const string& old_kode_stasiun,
+    const string& new_kode_stasiun,
+    int no_ka
+) {
+    RelationNode* r = findRelasi(old_kode_stasiun, no_ka);
+    if (!r) {
+        cout << "Error: Relasi tidak ditemukan.\n";
+        return;
+    }
+
+    StationNode* newStation = findStasiun(new_kode_stasiun);
+    if (!newStation) {
+        cout << "Error: Stasiun baru tidak ditemukan.\n";
+        return;
+    }
+
+    StationNode* oldStation = r->parentStation;
+
+    // ===== LEPAS DARI STASIUN LAMA =====
+    if (oldStation->relasi == r)
+        oldStation->relasi = r->next;
+
+    if (r->prev)
+        r->prev->next = r->next;
+
+    if (r->next)
+        r->next->prev = r->prev;
+
+    // ===== MASUKKAN KE STASIUN BARU =====
+    r->parentStation = newStation;
+    r->prev = nullptr;
+    r->next = newStation->relasi;
+
+    if (newStation->relasi)
+        newStation->relasi->prev = r;
+
+    newStation->relasi = r;
+
+    cout << "Relasi berhasil dipindahkan:\n";
+    cout << "  KA       : " << r->childKereta->nama_kereta << endl;
+    cout << "  Dari     : " << oldStation->nama_stasiun << endl;
+    cout << "  Ke       : " << newStation->nama_stasiun << endl;
+}
+
+
 // =============================================================
 // DELETE PARENT
 // =============================================================
@@ -383,7 +453,12 @@ vector<string> RailwayMLL::showAllRelations() {
         if (r) {
             result.push_back("--- Stasiun: " + s->nama_stasiun + " ---");
             while (r) {
-                result.push_back("  KA " + r->childKereta->nama_kereta);
+                result.push_back(
+                        " KA " + r->childKereta->nama_kereta+
+                        " | Datang: " + r->waktu_kedatangan +
+                        " | Berangkat: " + r->waktu_keberangkatan +
+                        " | Info: " + r->info_relasi
+                    );
                 r = r->next;
             }
         }
@@ -391,6 +466,44 @@ vector<string> RailwayMLL::showAllRelations() {
     }
     return result;
 }
+
+vector<string> RailwayMLL::showAllRelationsFromChild() {
+    vector<string> result;
+    KeretaApiNode* k = head_kereta;
+
+    while (k) {
+        bool adaRelasi = false;
+        result.push_back("--- Kereta: " + k->nama_kereta + " ---");
+
+        StationNode* s = head_stasiun;
+        while (s) {
+            RelationNode* r = s->relasi;
+            while (r) {
+                if (r->childKereta == k) {
+                    adaRelasi = true;
+                    result.push_back(
+                        "  Stasiun " + s->nama_stasiun +
+                        " | Datang: " + r->waktu_kedatangan +
+                        " | Berangkat: " + r->waktu_keberangkatan +
+                        " | Info: " + r->info_relasi
+                    );
+                }
+                r = r->next;
+            }
+            s = s->next;
+        }
+
+        if (!adaRelasi) {
+            result.push_back("  (Tidak ada relasi)");
+        }
+
+        k = k->next;
+    }
+
+    return result;
+}
+
+
 
 vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
     vector<string> result;
@@ -407,7 +520,8 @@ vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
         stringstream ss;
         ss << "KA: " << r->childKereta->nama_kereta
            << " | Tiba: " << r->waktu_kedatangan
-           << " | Brkt: " << r->waktu_keberangkatan;
+           << " | Brkt: " << r->waktu_keberangkatan
+           << " | Info: " << r->info_relasi;
         result.push_back(ss.str());
         r = r->next;
     }

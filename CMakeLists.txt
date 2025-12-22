@@ -24,5 +24,10 @@ target_compile_definitions(SISKA PRIVATE
     DB_PATH="${PROJECT_SOURCE_DIR}/data/railway.db"
 )
 
-find_package(SQLite3 REQUIRED)
-target_link_libraries(SISKA SQLite::SQLite3)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SQLITE3 REQUIRED sqlite3)
+
+target_include_directories(SISKA PRIVATE ${SQLITE3_INCLUDE_DIRS})
+target_link_libraries(SISKA PRIVATE ${SQLITE3_LIBRARIES})
+
+

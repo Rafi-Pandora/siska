@@ -136,9 +136,10 @@ void menuRelasiDisplay(RailwayMLL &rail) {
     int pilih;
     do {
         cout << "\n===== SUB-MENU RELASI: TAMPILKAN =====\n";
-        cout << "1. Tampilkan Semua Relasi\n";
-        cout << "2. Tampilkan KA di Stasiun\n";
-        cout << "3. Tampilkan Stasiun KA\n";
+        cout << "1. Tampilkan Semua Stasiun yang melayani KA \n";        
+        cout << "2. Tampilkan Semua KA yang dilayani Stasiun \n";        
+        cout << "3. Tampilkan KA di Stasiun\n";
+        cout << "4. Tampilkan Stasiun KA\n";
         cout << "0. Kembali\n";
 
         pilih = inputInt("Pilih: ");
@@ -148,13 +149,17 @@ void menuRelasiDisplay(RailwayMLL &rail) {
                 displayVector(rail.showAllRelations());
                 pause();
                 break;
-            case 2: {
+            case 2:
+                displayVector(rail.showAllRelationsFromChild());
+                pause();
+                break;
+            case 3: {
                 string kode = inputString("Kode Stasiun: ");
                 displayVector(rail.showChildFromParent(kode));
                 pause();
                 break;
             }
-            case 3: {
+            case 4: {
                 int ka = inputInt("No Kereta: ");
                 displayVector(rail.showRelasiFromKereta(ka));
                 pause();
@@ -222,6 +227,7 @@ void menuParent(RailwayMLL &rail) {
         cout << "2. Hapus Stasiun\n";
         cout << "3. Lihat Semua Stasiun\n";
         cout << "4. Lihat Contoh Input Stasiun\n";
+        cout << "5. Cari Stasiun\n";
         cout << "0. Kembali\n";
 
         pilih = inputInt("Pilih: ");
@@ -250,6 +256,12 @@ void menuParent(RailwayMLL &rail) {
                 printHelpStasiun();
                 pause();
                 break;
+            case  5:
+                kode_stasiun=inputString("Kode Stasiun (str): ");
+               if (rail.findStasiun(kode_stasiun)== nullptr) {
+                    cout<<"Stasiun dengan kode tersebut tidak ditemukan";
+               } else { cout<<"Stasiun Ditemukan";}
+                break;
         }
     } while (pilih != 0);
 }
@@ -265,7 +277,8 @@ void menuChild(RailwayMLL &rail) {
         cout << "1. Tambah Kereta\n";
         cout << "2. Hapus Kereta\n";
         cout << "3. Lihat Semua Kereta\n";
-        cout << "3. Lihat Contoh Input Kereta\n";
+        cout << "4. Lihat Contoh Input Kereta\n";
+        cout << "5. Cari Kereta\n";
         cout << "0. Kembali\n";
 
         pilih = inputInt("Pilih: ");
@@ -290,6 +303,12 @@ void menuChild(RailwayMLL &rail) {
                 printHelpKereta();
                 pause();
                 break;
+            case 5:
+                no_kereta=inputInt("Nomor Kereta (int): ");
+                if (rail.findKereta(no_kereta)== nullptr){
+                    cout<<"Kereta dengan nomor tersebut tidak ditemukan";
+                } else { cout<< "Kereta ditemukan"; }
+                break;
         }
     } while (pilih != 0);
 }
@@ -298,16 +317,19 @@ void menuChild(RailwayMLL &rail) {
 // MENU RELASI
 // =============================================================
 void menuRelasi(RailwayMLL &rail) {
-    int pilih, no_kereta;
-    string kode_stasiun, waktu_tiba, waktu_berangkat, info;
+    int pilih, no_kereta, old_no_ka, new_no_ka;
+    string kode_stasiun, waktu_tiba, waktu_berangkat, info, old_kode_stasiun, new_kode_stasiun;
     do {
         cout << "\n===== MENU RELASI =====\n";
         cout << "1. Tambah Relasi\n";
         cout << "2. Hapus Relasi\n";
-        cout << "3. Edit Relasi\n";
-        cout << "4. Tampilkan Relasi\n";
-        cout << "5. Hitung Relasi\n";
-        cout << "6. Tampilkan Contoh Input Relasi\n";
+        cout << "3. Edit Info Relasi\n";
+        cout << "4. Edit Relasi Kereta dari Stasiun tertentu\n";
+        cout << "5. Edit Relasi Stasiun dari Kereta tertentu\n";
+        cout << "6. Tampilkan Relasi\n";
+        cout << "7. Hitung Relasi\n";
+        cout << "8. Tampilkan Contoh Input Relasi\n";
+        cout << "9. Cari Relasi\n";
         cout << "0. Kembali\n";
 
         pilih = inputInt("Pilih: ");
@@ -338,14 +360,35 @@ void menuRelasi(RailwayMLL &rail) {
                 pause();
                 break;
             case 4:
-                menuRelasiDisplay(rail);
+                kode_stasiun = inputString("Kode Stasiun (str): ");
+                old_no_ka = inputInt("No KA lama (int): ");
+                new_no_ka = inputInt("No KA baru (int): ");
+                rail.editRelationChangeChild(kode_stasiun, old_no_ka, new_no_ka );
+                pause();
                 break;
             case 5:
-                menuRelasiCount(rail);
+                no_kereta = inputInt("No Kereta (int): ");
+                old_kode_stasiun = inputString("Kode Stasiun lama (str): ");
+                new_kode_stasiun = inputString("Kode Stasiun baru (str): ");
+                rail.editRelationChangeParent( old_kode_stasiun, new_kode_stasiun, no_kereta );
+                pause();
                 break;
             case 6:
+                menuRelasiDisplay(rail);
+                break;
+            case 7:
+                menuRelasiCount(rail);
+                break;
+            case 8:
                 printHelpRelasi();
                 break;
+            case 9:
+                kode_stasiun = inputString("Kode Stasiun (str): ");
+                no_kereta = inputInt("No Kereta (int) : ");
+                if (rail.findRelasi(kode_stasiun,no_kereta)== nullptr) {
+                    cout<<"Stasiun dan Kereta tidak memiliki relasi";
+                } 
+                
         }
     } while (pilih != 0);
 }

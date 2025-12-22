@@ -218,6 +218,21 @@ public:
 
     /// @brief Menghitung jumlah KA (Child) yang tidak terhubung ke Stasiun mana pun. (Poin r)
     pair<int, vector<string>> countChildTanpaParent();
+
+    vector<string> showAllRelationsFromChild();
+
+    void editRelationChangeChild(
+        const string& kode_stasiun,
+        int old_no_ka,
+        int new_no_ka
+    );
+
+    void editRelationChangeParent(
+        const string& old_kode_stasiun,
+        const string& new_kode_stasiun,
+        int no_ka
+    );
+
 };
 
 #endif
