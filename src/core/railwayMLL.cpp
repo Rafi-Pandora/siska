@@ -63,6 +63,7 @@ RailwayMLL::~RailwayMLL() {
 // =============================================================
 // FIND FUNCTIONS
 // =============================================================
+// g. find element parent
 StationNode* RailwayMLL::findStasiun(const string& kode_stasiun) {
     StationNode* cur = head_stasiun;
     while (cur) {
@@ -72,7 +73,7 @@ StationNode* RailwayMLL::findStasiun(const string& kode_stasiun) {
     }
     return nullptr;
 }
-
+// h.find element child
 KeretaApiNode* RailwayMLL::findKereta(int no_ka) {
     KeretaApiNode* cur = head_kereta;
     while (cur) {
@@ -83,6 +84,7 @@ KeretaApiNode* RailwayMLL::findKereta(int no_ka) {
     return nullptr;
 }
 
+// i. find apakah parent dan child tertentu punya relasi
 RelationNode* RailwayMLL::findRelasi(const string& kode_stasiun, int no_ka) {
     StationNode* st = findStasiun(kode_stasiun);
     KeretaApiNode* ka = findKereta(no_ka);
@@ -94,7 +96,7 @@ RelationNode* RailwayMLL::findRelasi(const string& kode_stasiun, int no_ka) {
     while (r) {
         if (r->parentStation == st && r->childKereta == ka) {
             cout << "Relasi Stasiun " << st->nama_stasiun 
-                 << " dan " << ka->nama_kereta << " DITEMUKAN.\n";
+                 << " dan KA " << ka->nama_kereta << " DITEMUKAN.\n";
             return r;
         }
         r = r->next;
@@ -106,6 +108,7 @@ RelationNode* RailwayMLL::findRelasi(const string& kode_stasiun, int no_ka) {
 // =============================================================
 // INSERT PARENT
 // =============================================================
+// A.Insert element parent
 void RailwayMLL::insertParent(int petak, const string& kode,
         const string& nama, const string& kota, int tipe, unsigned int tinggi) {
 
@@ -127,13 +130,14 @@ void RailwayMLL::insertParent(int petak, const string& kode,
         last->next = node;
     }
 
-    cout << "Stasiun " << nama << " ditambahkan.\n";
+    cout << "Stasiun ditambahkan.\n";
     if (db != nullptr) db->addStationDB(node);
 }
 
 // =============================================================
 // INSERT CHILD
 // =============================================================
+// B. Insert element child
 void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas) {
     if (findKereta(no_ka)) {
         cout << "Kereta sudah ada!\n";
@@ -143,7 +147,7 @@ void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas)
     KeretaApiNode* node = new KeretaApiNode{
         no_ka, nama, kelas,
         nullptr, nullptr,
-        nullptr 
+        nullptr // <--- child relasi list
     };
 
     if (!head_kereta) {
@@ -155,13 +159,14 @@ void RailwayMLL::insertChild(int no_ka, const string& nama, const string& kelas)
         node->prev = tail;
     }
 
-    cout << "Kereta " << nama << " ditambahkan.\n";
+    cout << "Kereta ditambahkan.\n";
     if (db != nullptr) db->addKeretaDB(node);
 }
 
 // =============================================================
 // INSERT RELATION (Parent ↔ Child connection)
 // =============================================================
+// C.Insert element relation
 void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
         const string& tiba, const string& berangkat, const string& info) {
 
@@ -178,9 +183,11 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
     node->waktu_kedatangan = tiba;
     node->waktu_keberangkatan = berangkat;
     node->info_relasi = info;
-    node->parentStation = st; 
-    node->childKereta = ka;   
+    node->parentStation = st; // Simpan pointer ke stasiun (Parent)
+    node->childKereta = ka;   // Simpan pointer ke kereta (Child)
 
+    // LOGIKA MLL TIPE B:
+    // Hubungkan node ini HANYA ke list relasi milik Stasiun (st->relasi)
     node->next = st->relasi; 
     node->prev = nullptr;
 
@@ -189,13 +196,17 @@ void RailwayMLL::insertRelation(const string& kode_stasiun, int no_ka,
     }
     st->relasi = node;
 
-    cout << "Relasi Stasiun " << st->nama_stasiun << " dengan Kereta " << ka->nama_kereta << " berhasil ditambahkan.\n";
+    // PENTING: Jangan hubungkan node->next ke ka->relasi! 
+    // Di Tipe B, Kereta tidak perlu memegang list relasi secara langsung.
+
+    cout << "Relasi berhasil ditambahkan.\n";
     if (db != nullptr) db->addRelasiDB(node);
 }
 
 // =============================================================
 // DELETE RELATION
 // =============================================================
+// f. delete element relations
 void RailwayMLL::deleteRelation(const string& kode_stasiun, int no_ka) {
     if (db != nullptr) db->deleteRelasiDB(kode_stasiun, no_ka);
     StationNode* st = findStasiun(kode_stasiun);
@@ -230,6 +241,7 @@ void RailwayMLL::deleteRelation(const string& kode_stasiun, int no_ka) {
 // =============================================================
 // DELETE CHILD
 // =============================================================
+// E. delete element child
 void RailwayMLL::deleteChild(int no_ka) {
     if (db != nullptr) db->deleteKeretaDB(no_ka);
     KeretaApiNode* target = findKereta(no_ka);
@@ -238,17 +250,20 @@ void RailwayMLL::deleteChild(int no_ka) {
         return;
     }
 
+    // 1. Hapus semua RELATION yang terhubung ke KA ini
     RelationNode* r = target->relasi;
     while (r) {
         RelationNode* next = r->next;
 
         StationNode* st = r->parentStation;
 
+        // Lepas node relasi dari parent station
         if (r->prev) r->prev->next = r->next;
         else st->relasi = r->next;
 
         if (r->next) r->next->prev = r->prev;
 
+        // Lepas dari child list (KA)
         if (r->next && r->next->parentStation == st)
             r->next->prev = r->prev;
 
@@ -257,6 +272,7 @@ void RailwayMLL::deleteChild(int no_ka) {
         r = next;
     }
 
+    // 2. Hapus KA dari DLL child list
     if (target->prev)
         target->prev->next = target->next;
     else
@@ -273,6 +289,7 @@ void RailwayMLL::deleteChild(int no_ka) {
 // =============================================================
 // EDIT RELATION (Poin t)
 // =============================================================
+// edit info relasi
 void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka, 
                              const string& new_tiba, const string& new_berangkat) {
     
@@ -283,6 +300,7 @@ void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka,
         return;
     }
 
+    // Lakukan perubahan data
     r->waktu_kedatangan = new_tiba;
     r->waktu_keberangkatan = new_berangkat;
 
@@ -291,10 +309,9 @@ void RailwayMLL::editRelation(const string& kode_stasiun, int no_ka,
     cout << "  KA: " << r->childKereta->nama_kereta << endl;
     cout << "  Waktu Tiba Baru: " << r->waktu_kedatangan << endl;
     cout << "  Waktu Berangkat Baru: " << r->waktu_keberangkatan << endl;
-
-    if (db != nullptr) db->updateRelasiData(kode_stasiun, no_ka, new_tiba, new_berangkat);
 }
 
+// t. mengganti child dari parent tertentu
 void RailwayMLL::editRelationChangeChild(
     const string& kode_stasiun,
     int old_no_ka,
@@ -317,10 +334,9 @@ void RailwayMLL::editRelationChangeChild(
     cout << "Relasi berhasil diubah (Child diganti):\n";
     cout << "  Stasiun : " << r->parentStation->nama_stasiun << endl;
     cout << "  KA Baru : " << newKereta->nama_kereta << endl;
-
-    if (db != nullptr) db->updateRelasiChild(kode_stasiun, old_no_ka, new_no_ka);
 }
 
+// t. mengganti parent dari child tertentu
 void RailwayMLL::editRelationChangeParent(
     const string& old_kode_stasiun,
     const string& new_kode_stasiun,
@@ -364,19 +380,19 @@ void RailwayMLL::editRelationChangeParent(
     cout << "  KA       : " << r->childKereta->nama_kereta << endl;
     cout << "  Dari     : " << oldStation->nama_stasiun << endl;
     cout << "  Ke       : " << newStation->nama_stasiun << endl;
-
-    if (db != nullptr) db->updateRelasiParent(old_kode_stasiun, new_kode_stasiun, no_ka);
 }
 
 
 // =============================================================
 // DELETE PARENT
 // =============================================================
+// D. delete element parent
 void RailwayMLL::deleteParent(const string& kode_stasiun) {
     if (db != nullptr) db->deleteStationDB(kode_stasiun);
     StationNode* st = findStasiun(kode_stasiun);
     if (!st) { cout << "Stasiun tidak ditemukan.\n"; return; }
 
+    // Hapus seluruh relasi station ini
     RelationNode* r = st->relasi;
     while (r) {
         RelationNode* next = r->next;
@@ -384,6 +400,7 @@ void RailwayMLL::deleteParent(const string& kode_stasiun) {
         r = next;
     }
 
+    // Remove parent from list
     if (head_stasiun == st) {
         head_stasiun = st->next;
     } else {
@@ -399,6 +416,7 @@ void RailwayMLL::deleteParent(const string& kode_stasiun) {
 // =============================================================
 // DISPLAY FUNCTIONS
 // =============================================================
+// j. show all data di list parent
 vector<string> RailwayMLL::showAllParent() {
     vector<string> result;
     StationNode* s = head_stasiun;
@@ -419,7 +437,7 @@ vector<string> RailwayMLL::showAllParent() {
     }
     return result;
 }
-
+// k .show all data di list child
 vector<string> RailwayMLL::showAllChild() {
     vector<string> result;
     KeretaApiNode* k = head_kereta;
@@ -439,6 +457,7 @@ vector<string> RailwayMLL::showAllChild() {
     return result;
 }
 
+// n. show setiap data parent beserta data child yang berelasi dengannya + info relasi
 vector<string> RailwayMLL::showAllRelations() {
     vector<string> result;
     StationNode* s = head_stasiun;
@@ -460,7 +479,7 @@ vector<string> RailwayMLL::showAllRelations() {
     }
     return result;
 }
-
+// o. show data child beserta data parent yang berelasi dengannya + info relasi
 vector<string> RailwayMLL::showAllRelationsFromChild() {
     vector<string> result;
     KeretaApiNode* k = head_kereta;
@@ -498,7 +517,7 @@ vector<string> RailwayMLL::showAllRelationsFromChild() {
 }
 
 
-
+// l. show data child dari parent tertentu
 vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
     vector<string> result;
     StationNode* st = findStasiun(kode_stasiun);
@@ -512,9 +531,9 @@ vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
     RelationNode* r = st->relasi;
     while (r) {
         stringstream ss;
-        ss << "KA: " << r->childKereta->nama_kereta << r->childKereta->no_ka
+        ss << "KA: " << r->childKereta->nama_kereta
            << " | Tiba: " << r->waktu_kedatangan
-           << " | Berangkat: " << r->waktu_keberangkatan
+           << " | Brkt: " << r->waktu_keberangkatan
            << " | Info: " << r->info_relasi;
         result.push_back(ss.str());
         r = r->next;
@@ -525,6 +544,7 @@ vector<string> RailwayMLL::showChildFromParent(const string& kode_stasiun) {
     return result;
 }
 
+// m. show data parent dari child tertentu
 vector<string> RailwayMLL::showParentFromChild(int no_ka) {
     return showRelasiFromKereta(no_ka);
 }
@@ -539,7 +559,7 @@ vector<string> RailwayMLL::showRelasiFromKereta(int no_ka) {
         RelationNode* r = s->relasi;
         while (r) {
             if (r->childKereta->no_ka == no_ka) {
-                result.push_back(r->childKereta->nama_kereta + " Melayani Stasiun: " + s->nama_stasiun);
+                result.push_back("Melayani Stasiun: " + s->nama_stasiun);
             }
             r = r->next;
         }
@@ -551,6 +571,7 @@ vector<string> RailwayMLL::showRelasiFromKereta(int no_ka) {
 // =============================================================
 // COUNT
 // =============================================================
+// p . count jumlah child element parent tertentu
 int RailwayMLL::countChildOfParent(const string& kode_stasiun) {
     StationNode* st = findStasiun(kode_stasiun);
     if (!st) return -1; // Mengembalikan -1 jika stasiun tidak ditemukan
@@ -564,6 +585,7 @@ int RailwayMLL::countChildOfParent(const string& kode_stasiun) {
     return count;
 }
 
+// q. count jumlah parent yang dimiliki oleh child terntetu
 int RailwayMLL::countParentOfChild(int no_ka) {
     KeretaApiNode* ka = findKereta(no_ka);
     if (!ka) return -1; // Mengembalikan -1 jika KA tidak ditemukan
@@ -577,27 +599,14 @@ int RailwayMLL::countParentOfChild(int no_ka) {
     return count;
 }
 
+// r. count element child yang tidak memiliki parent
 pair<int, vector<string>> RailwayMLL::countChildTanpaParent() {
     int count = 0;
     vector<string> list_ka;
     KeretaApiNode* k = head_kereta;
 
     while (k) {
-        bool ditemukan = false;
-        StationNode* s = head_stasiun;
-        
-        while (s && !ditemukan) {
-            RelationNode* r = s->relasi;
-            while (r && !ditemukan) {
-                if (r->childKereta == k) {
-                    ditemukan = true;
-                }
-                r = r->next;
-            }
-            s = s->next;
-        }
-
-        if (!ditemukan) {
+        if (!k->relasi) {
             stringstream ss;
             ss << k->no_ka << " | " << k->nama_kereta;
             list_ka.push_back(ss.str());
@@ -607,7 +616,7 @@ pair<int, vector<string>> RailwayMLL::countChildTanpaParent() {
     }
     return make_pair(count, list_ka);
 }
-
+// s. count element parent yang tidak memiliki child
 pair<int, vector<string>> RailwayMLL::countParentTanpaChild() {
     int count = 0;
     vector<string> list_stasiun;
@@ -616,7 +625,7 @@ pair<int, vector<string>> RailwayMLL::countParentTanpaChild() {
     while (s) {
         if (!s->relasi) {
             stringstream ss;
-            ss << s->petak_stasiun << " | " << s->nama_stasiun << " " + s->kode_stasiun << "|" << " +" << s->tinggi_stasiun_mdpl << "m";
+            ss << s->petak_stasiun << " | " << s->nama_stasiun;
             list_stasiun.push_back(ss.str());
             count++;
         }
